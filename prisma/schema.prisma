@@ -13,4 +13,69 @@ model Link {
   url       String
   shortKey  String   @unique
   createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("links")
+}
+
+model User {
+  id        String   @id @map("_id")
+  createdAt DateTime
+  updatedAt DateTime
+
+  name          String
+  email         String  @unique
+  emailVerified Boolean
+  image         String?
+
+  sessions Session[]
+  accounts Account[]
+  Link     Link[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @map("_id")
+  createdAt DateTime
+  updatedAt DateTime
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @map("_id")
+  createdAt             DateTime
+  updatedAt             DateTime
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id @map("_id")
+  createdAt  DateTime?
+  updatedAt  DateTime?
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  @@map("verifications")
 }
