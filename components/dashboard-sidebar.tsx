@@ -136,7 +136,9 @@ const DashboardSidebar = ({ children }: { children: React.ReactNode }) => {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Links</BreadcrumbPage>
+                                    <BreadcrumbPage>
+                                        {items.filter((i) => pathname.startsWith(i.url))?.[0].title}
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>

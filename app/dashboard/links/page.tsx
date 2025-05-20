@@ -1,7 +1,7 @@
 import React from "react";
 
-const page = () => {
-    return <div className="">page</div>;
+const Links = () => {
+    return <div className="">Links</div>;
 };
 
-export default page;
+export default Links;
