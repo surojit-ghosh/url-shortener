@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -23,6 +24,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
     const {
         register,
         handleSubmit,
@@ -50,6 +52,7 @@ export default function LoginPage() {
                     toast.error(ctx.error.message);
                 },
                 onSuccess: (ctx) => {
+                    router.push("/dashboard/links");
                     setLoading(false);
                     console.log("Login success:", ctx.data);
                     toast.success("Logged in successfully!");
@@ -114,7 +117,7 @@ export default function LoginPage() {
                         </div>
 
                         <Button disabled={loading} type="submit" className="w-full">
-                            {loading ? "Creating..." : "Register"}
+                            {loading ? "Creating..." : "Login"}
                         </Button>
                     </div>
 
@@ -158,7 +161,7 @@ export default function LoginPage() {
                     <p className="text-center text-sm">
                         Don&apos;t have an account ?
                         <Button asChild variant="link" className="px-2">
-                            <Link href="#">Create account</Link>
+                            <Link href="/auth/register">Create account</Link>
                         </Button>
                     </p>
                 </div>

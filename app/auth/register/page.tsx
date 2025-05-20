@@ -12,6 +12,7 @@ import * as z from "zod";
 import { useState } from "react";
 import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const registerSchema = z
     .object({
@@ -30,6 +31,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
     const {
         register,
         handleSubmit,
@@ -59,6 +61,7 @@ export default function RegisterPage() {
                 },
                 onSuccess: (ctx) => {
                     setLoading(false);
+                    router.push("/dashboard/links");
                     console.log("Registration success:", ctx.data);
                     toast.success("Account created successfully! Check your email to verify.");
                 },
@@ -209,7 +212,7 @@ export default function RegisterPage() {
                     <p className="text-center text-sm">
                         Have an account?
                         <Button asChild variant="link" className="px-2">
-                            <Link href="/auth/signin">Sign In</Link>
+                            <Link href="/auth/login">Sign In</Link>
                         </Button>
                     </p>
                 </div>
