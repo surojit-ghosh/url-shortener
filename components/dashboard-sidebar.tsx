@@ -74,7 +74,6 @@ const DashboardSidebar = ({ children }: { children: React.ReactNode }) => {
                             <Logo />
                             <h1 className="text-2xl font-bold">{siteConfig.name}</h1>
                         </Link>
-                        <ModeToggle />
                     </div>
                 </SidebarHeader>
                 <SidebarContent>
@@ -96,7 +95,8 @@ const DashboardSidebar = ({ children }: { children: React.ReactNode }) => {
                     </SidebarMenu>
                 </SidebarContent>
                 <SidebarFooter className="p-2 pb-4 md:p-0 md:pb-2">
-                    <div className="bg-secondary flex items-center gap-2 p-2">
+                    <ModeToggle />
+                    <div className="bg-secondary mt-2 flex items-center gap-2 p-2">
                         <Avatar className="h-8 w-8 rounded-lg">
                             <AvatarImage
                                 src={session?.user.image ?? undefined}
