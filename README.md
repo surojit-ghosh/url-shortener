@@ -1,6 +1,6 @@
 <p align="center">
 
-  <h3 align="center">Snippy</h3>
+  <h2 align="center">Snippy</h2>
 
   <p align="center">
         A minimal and efficient URL shortener.

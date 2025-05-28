@@ -24,13 +24,13 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ChartBar, Link as LinkIcon, LogOut, Settings } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "./Logo";
+import Logo from "@/components/Logo";
 import Link from "next/link";
 import { siteConfig } from "@/lib/config";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "@/lib/auth-client";
-import { ModeToggle } from "./mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const items = [
     {
