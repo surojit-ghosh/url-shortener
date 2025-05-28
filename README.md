@@ -1,12 +1,25 @@
-# URL Shortener
+<p align="center">
 
-A minimal URL shortener service built with simplicity and efficiency in mind.
+  <h3 align="center">Snippy</h3>
 
-## Features
+  <p align="center">
+        A minimal and efficient URL shortener.
+  </p>
+</p>
 
-- Shorten long URLs
-- Redirect to original URLs
-- Analytics
+## Introduction
+
+A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Prisma. Designed for simplicity, speed, and extensibility.
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org/) – framework
+- [TypeScript](https://www.typescriptlang.org/) – language
+- [Tailwind](https://tailwindcss.com/) – CSS
+- [MongoDB](https://www.mongodb.com/) – database
+- [Prisma](https://www.prisma.io/) – ORM
+- [shadcn/ui](https://ui.shadcn.com/) – UI components
+- [better-auth](https://www.better-auth.com/) – Authentication
 
 ## Roadmap
 
@@ -55,6 +68,5 @@ A minimal URL shortener service built with simplicity and efficiency in mind.
     - [ ] Navbar
     - [ ] Hero section
     - [ ] Features section
-    - [ ] Footer with legal links
     - [ ] Frequently asked questions
     - [ ] Footer
