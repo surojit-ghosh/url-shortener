@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { siteConfig } from "@/config/site";
 import { Shuffle } from "lucide-react";
-import { ILink, linkSchema } from "../schemas/link-schema";
+import { LinkData, linkSchema } from "@/lib/zod/link.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useTransition } from "react";
-import { getRandomKey } from "@/lib/helpers/link/get-random-key";
+import { genereateRandomKey } from "@/actions/link.action";
 
 const LinkForm = () => {
     const [isPending, startTransition] = useTransition();
@@ -18,7 +18,7 @@ const LinkForm = () => {
         handleSubmit,
         setValue,
         formState: { errors },
-    } = useForm<ILink>({
+    } = useForm<LinkData>({
         resolver: zodResolver(linkSchema),
         defaultValues: {
             url: "",
@@ -26,21 +26,21 @@ const LinkForm = () => {
         },
     });
 
-    const onSubmit = (data: ILink) => {
+    const onSubmit = (data: LinkData) => {
         console.log("Form Data:", data);
         // handle create link here
     };
 
     useEffect(() => {
         startTransition(async () => {
-            const initialKey = await getRandomKey();
+            const initialKey = await genereateRandomKey();
             setValue("key", initialKey, { shouldValidate: true });
         });
     }, [setValue]);
 
     const handleGenerateKey = () => {
         startTransition(async () => {
-            const newKey = await getRandomKey();
+            const newKey = await genereateRandomKey();
             setValue("key", newKey);
         });
     };

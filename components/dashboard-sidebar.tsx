@@ -26,7 +26,7 @@ import { ChartBar, Link as LinkIcon, LogOut, Settings } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { siteConfig } from "@/lib/config";
+import { siteConfig } from "@/config/site";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "@/lib/auth-client";

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LinksHeader } from "./components/header";
+import { LinksHeader } from "@/components/links/header";
 
 const Links = () => {
     return (

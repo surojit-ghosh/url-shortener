@@ -7,4 +7,4 @@ export const linkSchema = z.object({
         .max(25, { message: "Slug must be at most 25 characters" }),
 });
 
-export type ILink = z.infer<typeof linkSchema>;
+export type LinkData = z.infer<typeof linkSchema>;
