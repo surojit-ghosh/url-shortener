@@ -8,7 +8,7 @@ import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { siteConfig } from "@/lib/config";
+import { siteConfig } from "@/config/site";
 import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";

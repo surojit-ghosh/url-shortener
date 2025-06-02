@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { siteConfig } from "@/config/site";
 import { Shuffle } from "lucide-react";
 import { LinkData, linkSchema } from "@/lib/zod/link.schema";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useTransition } from "react";
-import { genereateRandomKey } from "@/actions/link.action";
+import { checkIfKeyExists, genereateRandomKey } from "@/actions/link.action";
+import { useDebounceValue } from "usehooks-ts";
 
 const LinkForm = () => {
     const [isPending, startTransition] = useTransition();
@@ -17,6 +18,10 @@ const LinkForm = () => {
         register,
         handleSubmit,
         setValue,
+        setError,
+        control,
+        clearErrors,
+        trigger,
         formState: { errors },
     } = useForm<LinkData>({
         resolver: zodResolver(linkSchema),
@@ -25,6 +30,8 @@ const LinkForm = () => {
             key: "",
         },
     });
+    const keyInput = useWatch({ control, name: "key" });
+    const [debouncedKey, setDebouncedKey] = useDebounceValue(keyInput, 500);
 
     const onSubmit = (data: LinkData) => {
         console.log("Form Data:", data);
@@ -35,15 +42,37 @@ const LinkForm = () => {
         startTransition(async () => {
             const initialKey = await genereateRandomKey();
             setValue("key", initialKey, { shouldValidate: true });
+            setDebouncedKey(initialKey);
         });
-    }, [setValue]);
+    }, [setValue, setDebouncedKey]);
 
     const handleGenerateKey = () => {
         startTransition(async () => {
             const newKey = await genereateRandomKey();
-            setValue("key", newKey);
+            setValue("key", newKey, { shouldValidate: true });
+            setDebouncedKey(newKey);
         });
     };
+
+    useEffect(() => {
+        const validateKey = async () => {
+            if (!debouncedKey) return;
+
+            const isExists = await checkIfKeyExists(debouncedKey);
+            console.log("Key exists:", isExists);
+            if (isExists) {
+                setError("key", {
+                    type: "manual",
+                    message: "This slug is already taken.",
+                });
+            } else {
+                clearErrors("key");
+                trigger("key");
+            }
+        };
+
+        validateKey();
+    }, [debouncedKey, setError, clearErrors, trigger]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -77,9 +106,9 @@ const LinkForm = () => {
                     </div>
                     <div className="relative flex-1">
                         <Input id="key" placeholder="custom-key (optional)" {...register("key")} />
-                        {errors.key && <p className="text-sm text-red-500">{errors.key.message}</p>}
                     </div>
                 </div>
+                {errors.key && <p className="text-sm text-red-500">{errors.key.message}</p>}
             </div>
 
             <div className="border-t pt-4">
