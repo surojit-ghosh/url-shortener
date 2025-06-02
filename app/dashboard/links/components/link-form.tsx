@@ -3,14 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { siteConfig } from "@/lib/config";
+import { siteConfig } from "@/config/site";
 import { Shuffle } from "lucide-react";
 import { ILink, linkSchema } from "../schemas/link-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
+import { getRandomKey } from "@/lib/helpers/link/get-random-key";
 
 const LinkForm = () => {
+    const [isPending, startTransition] = useTransition();
     const {
         register,
         handleSubmit,
@@ -24,19 +26,23 @@ const LinkForm = () => {
         },
     });
 
-    useEffect(() => {
-        const key = Math.random().toString(36).substring(2, 9);
-        setValue("key", key);
-    }, [setValue]);
-
-    const handleGenerateSlug = () => {
-        const key = Math.random().toString(36).substring(2, 9);
-        setValue("key", key);
-    };
-
     const onSubmit = (data: ILink) => {
         console.log("Form Data:", data);
         // handle create link here
+    };
+
+    useEffect(() => {
+        startTransition(async () => {
+            const initialKey = await getRandomKey();
+            setValue("key", initialKey, { shouldValidate: true });
+        });
+    }, [setValue]);
+
+    const handleGenerateKey = () => {
+        startTransition(async () => {
+            const newKey = await getRandomKey();
+            setValue("key", newKey);
+        });
     };
 
     return (
@@ -56,7 +62,8 @@ const LinkForm = () => {
                 <div className="flex items-center">
                     <Label className="flex-1">Short Link</Label>
                     <Button
-                        onClick={handleGenerateSlug}
+                        disabled={isPending}
+                        onClick={handleGenerateKey}
                         variant="outline"
                         size={"icon"}
                         className="h-[26px]"
