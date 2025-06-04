@@ -11,10 +11,6 @@ export async function POST(request: NextRequest) {
         headers: await headers()
     });
 
-    // TODO Transfer this to a middleware
-    if (!session?.user?.id) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
     try {
         const body = await request.json();
         const data = linkSchema.parse(body);
@@ -30,7 +26,7 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const newLink = await prisma.link.create({ data: { key: data.key, url: data.url, userId: session.user.id } });
+        const newLink = await prisma.link.create({ data: { key: data.key, url: data.url, userId: session?.user.id as string } });
 
         return NextResponse.json(newLink, { status: 201 });
     } catch (err) {
