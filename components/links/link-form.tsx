@@ -9,10 +9,11 @@ import { LinkData, linkSchema } from "@/lib/zod/link.schema";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useTransition } from "react";
-import { checkIfKeyExists, genereateRandomKey } from "@/actions/link.action";
+import { checkIfKeyExists, genereateRandomKey, getDefaultValues } from "@/actions/link.action";
 import { useDebounceValue } from "usehooks-ts";
+import { toast } from "sonner";
 
-const LinkForm = () => {
+const LinkForm = ({ close }: { close: () => void }) => {
     const [isPending, startTransition] = useTransition();
     const {
         register,
@@ -22,29 +23,43 @@ const LinkForm = () => {
         control,
         clearErrors,
         trigger,
-        formState: { errors },
+        reset,
+        formState: { errors, isSubmitting, isValid },
     } = useForm<LinkData>({
         resolver: zodResolver(linkSchema),
-        defaultValues: {
-            url: "",
-            key: "",
-        },
+        defaultValues: async () => await getDefaultValues(),
     });
     const keyInput = useWatch({ control, name: "key" });
     const [debouncedKey, setDebouncedKey] = useDebounceValue(keyInput, 500);
 
-    const onSubmit = (data: LinkData) => {
-        console.log("Form Data:", data);
-        // handle create link here
-    };
-
-    useEffect(() => {
-        startTransition(async () => {
-            const initialKey = await genereateRandomKey();
-            setValue("key", initialKey, { shouldValidate: true });
-            setDebouncedKey(initialKey);
+    const onSubmit = async (formData: LinkData) => {
+        const res = await fetch("/api/link", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...formData }),
         });
-    }, [setValue, setDebouncedKey]);
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            if (result?.fieldErrors) {
+                const fieldErrors = result.fieldErrors as Partial<Record<keyof LinkData, string[]>>;
+                Object.entries(fieldErrors).forEach(([field, messages]) => {
+                    setError(field as keyof LinkData, {
+                        type: "manual",
+                        message: messages?.[0],
+                    });
+                });
+            }
+            return;
+        }
+
+        reset();
+
+        toast.success("Link created successfully!");
+        close();
+        setDebouncedKey("");
+    };
 
     const handleGenerateKey = () => {
         startTransition(async () => {
@@ -59,7 +74,7 @@ const LinkForm = () => {
             if (!debouncedKey) return;
 
             const isExists = await checkIfKeyExists(debouncedKey);
-            console.log("Key exists:", isExists);
+
             if (isExists) {
                 setError("key", {
                     type: "manual",
@@ -112,7 +127,7 @@ const LinkForm = () => {
             </div>
 
             <div className="border-t pt-4">
-                <Button type="submit" className="float-right">
+                <Button type="submit" disabled={isSubmitting || !isValid} className="float-right">
                     Create Link
                 </Button>
             </div>
