@@ -1,27 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
-    // Get session cookie (better-auth default cookie name is 'better-auth.session_token')
-    const sessionCookie = request.cookies.get("better-auth.session_token");
-    const hasSession = !!sessionCookie?.value;
+    // Only protect dashboard routes
+    if (pathname.startsWith("/dashboard")) {
+        try {
+            // Use better-auth's session verification
+            const session = await auth.api.getSession({
+                headers: request.headers,
+            });
 
-    // Redirect to login if accessing dashboard without session
-    if (pathname.startsWith("/dashboard") && !hasSession) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
-    }
-
-    // Protect API routes except `/api/auth/**` by checking for session cookie
-    if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth") && !hasSession) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+            if (!session) {
+                return NextResponse.redirect(new URL("/auth/login", request.url));
+            }
+        } catch {
+            // If session check fails, redirect to login
+            return NextResponse.redirect(new URL("/auth/login", request.url));
+        }
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|api/auth/).*)"
-    ],
+    matcher: ["/dashboard/:path*"],
 };
