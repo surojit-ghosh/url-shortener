@@ -1,30 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { auth } from "@/lib/auth";
-
-type Session = typeof auth.$Infer.Session;
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
-    const { data: session } = await axios.get<Session>("/api/auth/get-session", {
-        baseURL: request.nextUrl.origin,
-        headers: {
-            cookie: request.headers.get("cookie") || "",
-        },
-        withCredentials: true,
-    });
+    try {
+        // Create the session check URL - use http for localhost, https for production
+        const sessionUrl = new URL("/api/auth/get-session", request.nextUrl.origin);
+        
+        const response = await fetch(sessionUrl.toString(), {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Cookie": request.headers.get("cookie") || "",
+            },
+            credentials: "include",
+        });
 
-    if (pathname.startsWith("/dashboard") && !session) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
+        let session = null;
+        if (response.ok) {
+            session = await response.json();
+        }
+
+        if (pathname.startsWith("/dashboard") && !session) {
+            return NextResponse.redirect(new URL("/auth/login", request.url));
+        }
+
+        // Protect API routes except `/api/auth/**`
+        if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth") && !session) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        return NextResponse.next();
+    } catch (error) {
+        console.error("Middleware session check failed:", error);
+        
+        // If session check fails, redirect to login for protected routes
+        if (pathname.startsWith("/dashboard")) {
+            return NextResponse.redirect(new URL("/auth/login", request.url));
+        }
+        
+        // For API routes, return unauthorized
+        if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth")) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        
+        return NextResponse.next();
     }
-
-    // Protect API routes except `/api/auth/**`
-    if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth") && !session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    return NextResponse.next();
 }
 
 export const config = {
