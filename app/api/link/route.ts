@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
             url: string;
             userId: string;
             password?: string;
+            geoTargeting?: Record<string, string>;
+            deviceTargeting?: Record<string, string>;
             expiresAt?: Date;
         } = {
             key: data.key,
@@ -45,6 +47,15 @@ export async function POST(request: NextRequest) {
         if (data.password && data.password.trim() !== "") {
             const saltRounds = 12;
             linkData.password = await bcrypt.hash(data.password, saltRounds);
+        }
+
+        // Add targeting rules if provided
+        if (data.geoTargeting && Object.keys(data.geoTargeting).length > 0) {
+            linkData.geoTargeting = data.geoTargeting;
+        }
+
+        if (data.deviceTargeting && Object.keys(data.deviceTargeting).length > 0) {
+            linkData.deviceTargeting = data.deviceTargeting;
         }
 
         // Add expiresAt if provided
@@ -79,7 +90,6 @@ export async function GET(request: NextRequest) {
     const userId = session?.user?.id;
     const { searchParams } = new URL(request.url);
 
-    console.log(searchParams);
 
     const links = await prisma.link.findMany({
         where: { userId },
@@ -91,6 +101,8 @@ export async function GET(request: NextRequest) {
             createdAt: true,
             expiresAt: true,
             password: true, // Include to check if password exists
+            geoTargeting: true,
+            deviceTargeting: true,
         }
     });
 

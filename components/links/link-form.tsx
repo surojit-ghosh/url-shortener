@@ -12,12 +12,15 @@ import { checkIfKeyExists, genereateRandomKey, getDefaultValues } from "@/lib/ac
 import { useCreateLink } from "@/lib/queries/links";
 import { useDebounceValue } from "usehooks-ts";
 import { toast } from "sonner";
+import AdvancedTargetingModal from "@/components/advanced-targeting-modal";
 
 const LinkForm = ({ close }: { close: () => void }) => {
     const [isPending, startTransition] = useTransition();
     const [defaultValues, setDefaultValues] = useState<ILinkForm | undefined>(undefined);
     const [isPasswordProtected, setIsPasswordProtected] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [geoTargeting, setGeoTargeting] = useState<Record<string, string> | undefined>();
+    const [deviceTargeting, setDeviceTargeting] = useState<Record<string, string> | undefined>();
 
     // TanStack Query mutation for creating links
     const createLinkMutation = useCreateLink();
@@ -68,10 +71,19 @@ const LinkForm = ({ close }: { close: () => void }) => {
 
     const onSubmit = async (formData: ILinkForm) => {
         try {
-            await createLinkMutation.mutateAsync(formData);
+            // Combine form data with targeting data
+            const submitData = {
+                ...formData,
+                geoTargeting,
+                deviceTargeting,
+            };
+
+            await createLinkMutation.mutateAsync(submitData);
 
             // Reset form and close modal
             reset();
+            setGeoTargeting(undefined);
+            setDeviceTargeting(undefined);
             toast.success("Link created successfully!");
             close();
             setDebouncedKey("");
@@ -241,6 +253,18 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 {errors.password && (
                     <p className="text-sm text-red-500">{errors.password.message}</p>
                 )}
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-sm font-medium">Advanced Targeting (Optional)</Label>
+                <AdvancedTargetingModal
+                    geoTargeting={geoTargeting}
+                    deviceTargeting={deviceTargeting}
+                    onSave={(data) => {
+                        setGeoTargeting(data.geoTargeting);
+                        setDeviceTargeting(data.deviceTargeting);
+                    }}
+                />
             </div>
 
             <div className="border-t pt-4">

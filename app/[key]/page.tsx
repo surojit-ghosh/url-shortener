@@ -1,7 +1,14 @@
 import { notFound, redirect } from "next/navigation";
 import { getLinkByKey } from "@/lib/utils/key";
+import {
+    getClientIP,
+    getCountryFromIP,
+    getDeviceFromUserAgent,
+    findTargetedURL,
+} from "@/lib/utils/targeting";
 import Link from "next/link";
 import PasswordVerification from "@/components/password-verification";
+import { headers } from "next/headers";
 
 interface PageProps {
     params: Promise<{
@@ -54,6 +61,34 @@ export default async function RedirectPage({ params }: PageProps) {
         return <PasswordVerification linkKey={key} />;
     }
 
-    // If not password protected, redirect to the original URL
-    redirect(result.link.url);
+    // Get targeting information
+    const headersList = await headers();
+    const userAgent = headersList.get("user-agent") || "";
+    const clientIP = getClientIP(headersList);
+
+    // Determine country and device
+    const countryCode = getCountryFromIP(clientIP);
+    const deviceType = getDeviceFromUserAgent(userAgent);
+
+    // Find the appropriate URL based on targeting rules
+    const targetUrl = findTargetedURL(
+        result.link.url,
+        result.link.geoTargeting as Record<string, string> | null,
+        result.link.deviceTargeting as Record<string, string> | null,
+        countryCode,
+        deviceType
+    );
+
+    // Log for debugging (remove in production)
+    console.log("Targeting info:", {
+        ip: clientIP,
+        country: countryCode,
+        device: deviceType,
+        targetUrl,
+        geoRules: result.link.geoTargeting,
+        deviceRules: result.link.deviceTargeting,
+    });
+
+    // Redirect to the targeted URL
+    redirect(targetUrl);
 }

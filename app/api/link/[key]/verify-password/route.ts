@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { passwordVerificationSchema } from "@/lib/zod/link.schema";
+import { getClientIP, getCountryFromIP, getDeviceFromUserAgent, findTargetedURL } from "@/lib/utils/targeting";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -22,6 +23,8 @@ export async function POST(
                 id: true,
                 password: true,
                 url: true,
+                geoTargeting: true,
+                deviceTargeting: true,
                 expiresAt: true
             }
         });
@@ -59,11 +62,25 @@ export async function POST(
             );
         }
 
-        // Password is correct, return the redirect URL
+        // Password is correct, determine the redirect URL based on targeting
+        const userAgent = request.headers.get("user-agent") || "";
+        const clientIP = getClientIP(request.headers);
+
+        const countryCode = getCountryFromIP(clientIP);
+        const deviceType = getDeviceFromUserAgent(userAgent);
+
+        const targetUrl = findTargetedURL(
+            link.url,
+            link.geoTargeting as Record<string, string> | null,
+            link.deviceTargeting as Record<string, string> | null,
+            countryCode,
+            deviceType
+        );
+
         return NextResponse.json(
             {
                 success: true,
-                redirectUrl: link.url
+                redirectUrl: targetUrl
             },
             { status: 200 }
         );

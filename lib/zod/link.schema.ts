@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+// Schema for geo targeting rules
+export const geoTargetingSchema = z.record(
+    z.string().length(2, "Country code must be 2 characters"),
+    z.string().url("Must be a valid URL")
+).optional();
+
+// Schema for device targeting rules  
+export const deviceTargetingSchema = z.record(
+    z.enum(["windows", "macos", "linux", "android", "ios"], {
+        message: "Invalid device/OS type"
+    }),
+    z.string().url("Must be a valid URL")
+).optional();
+
 export const linkSchema = z.object({
     url: z.string().url({ message: "Invalid URL" }),
     key: z.string({ required_error: "Slug is required" })
@@ -16,6 +30,8 @@ export const linkSchema = z.object({
         },
         { message: "Password must be at least 4 characters long" }
     ),
+    geoTargeting: geoTargetingSchema,
+    deviceTargeting: deviceTargetingSchema,
     expiresAt: z.string().optional().refine(
         (date) => {
             if (!date || date === "") return true; // Allow empty string or undefined

@@ -1,0 +1,401 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Target, Globe, Smartphone, Plus, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+// Extended country list with properly encoded flags
+const COUNTRIES = [
+    { code: "US", name: "United States", flag: "\uD83C\uDDFA\uD83C\uDDF8" },
+    { code: "GB", name: "United Kingdom", flag: "\uD83C\uDDEC\uD83C\uDDE7" },
+    { code: "CA", name: "Canada", flag: "\uD83C\uDDE8\uD83C\uDDE6" },
+    { code: "AU", name: "Australia", flag: "\uD83C\uDDE6\uD83C\uDDFA" },
+    { code: "DE", name: "Germany", flag: "\uD83C\uDDE9\uD83C\uDDEA" },
+    { code: "FR", name: "France", flag: "\uD83C\uDDEB\uD83C\uDDF7" },
+    { code: "JP", name: "Japan", flag: "\uD83C\uDDEF\uD83C\uDDF5" },
+    { code: "IN", name: "India", flag: "\uD83C\uDDEE\uD83C\uDDF3" },
+    { code: "BR", name: "Brazil", flag: "\uD83C\uDDE7\uD83C\uDDF7" },
+    { code: "ES", name: "Spain", flag: "\uD83C\uDDEA\uD83C\uDDF8" },
+    { code: "IT", name: "Italy", flag: "\uD83C\uDDEE\uD83C\uDDF9" },
+    { code: "NL", name: "Netherlands", flag: "\uD83C\uDDF3\uD83C\uDDF1" },
+    { code: "SE", name: "Sweden", flag: "\uD83C\uDDF8\uD83C\uDDEA" },
+    { code: "NO", name: "Norway", flag: "\uD83C\uDDF3\uD83C\uDDF4" },
+    { code: "DK", name: "Denmark", flag: "\uD83C\uDDE9\uD83C\uDDF0" },
+    { code: "FI", name: "Finland", flag: "\uD83C\uDDEB\uD83C\uDDEE" },
+    { code: "CH", name: "Switzerland", flag: "\uD83C\uDDE8\uD83C\uDDED" },
+    { code: "AT", name: "Austria", flag: "\uD83C\uDDE6\uD83C\uDDF9" },
+    { code: "BE", name: "Belgium", flag: "\uD83C\uDDE7\uD83C\uDDEA" },
+    { code: "IE", name: "Ireland", flag: "\uD83C\uDDEE\uD83C\uDDEA" },
+    { code: "PL", name: "Poland", flag: "\uD83C\uDDF5\uD83C\uDDF1" },
+    { code: "PT", name: "Portugal", flag: "\uD83C\uDDF5\uD83C\uDDF9" },
+    { code: "CZ", name: "Czech Republic", flag: "\uD83C\uDDE8\uD83C\uDDFF" },
+    { code: "HU", name: "Hungary", flag: "\uD83C\uDDED\uD83C\uDDFA" },
+    { code: "GR", name: "Greece", flag: "\uD83C\uDDEC\uD83C\uDDF7" },
+    { code: "RO", name: "Romania", flag: "\uD83C\uDDF7\uD83C\uDDF4" },
+    { code: "BG", name: "Bulgaria", flag: "\uD83C\uDDE7\uD83C\uDDEC" },
+    { code: "HR", name: "Croatia", flag: "\uD83C\uDDED\uD83C\uDDF7" },
+    { code: "SK", name: "Slovakia", flag: "\uD83C\uDDF8\uD83C\uDDF0" },
+    { code: "SI", name: "Slovenia", flag: "\uD83C\uDDF8\uD83C\uDDEE" },
+    { code: "EE", name: "Estonia", flag: "\uD83C\uDDEA\uD83C\uDDEA" },
+    { code: "LV", name: "Latvia", flag: "\uD83C\uDDF1\uD83C\uDDFB" },
+    { code: "LT", name: "Lithuania", flag: "\uD83C\uDDF1\uD83C\uDDF9" },
+    { code: "CN", name: "China", flag: "\uD83C\uDDE8\uD83C\uDDF3" },
+    { code: "KR", name: "South Korea", flag: "\uD83C\uDDF0\uD83C\uDDF7" },
+    { code: "SG", name: "Singapore", flag: "\uD83C\uDDF8\uD83C\uDDEC" },
+    { code: "MY", name: "Malaysia", flag: "\uD83C\uDDF2\uD83C\uDDFE" },
+    { code: "TH", name: "Thailand", flag: "\uD83C\uDDF9\uD83C\uDDED" },
+    { code: "VN", name: "Vietnam", flag: "\uD83C\uDDFB\uD83C\uDDF3" },
+    { code: "PH", name: "Philippines", flag: "\uD83C\uDDF5\uD83C\uDDED" },
+    { code: "ID", name: "Indonesia", flag: "\uD83C\uDDEE\uD83C\uDDE9" },
+    { code: "TW", name: "Taiwan", flag: "\uD83C\uDDF9\uD83C\uDDFC" },
+    { code: "HK", name: "Hong Kong", flag: "\uD83C\uDDED\uD83C\uDDF0" },
+    { code: "NZ", name: "New Zealand", flag: "\uD83C\uDDF3\uD83C\uDDFF" },
+    { code: "ZA", name: "South Africa", flag: "\uD83C\uDDFF\uD83C\uDDE6" },
+    { code: "NG", name: "Nigeria", flag: "\uD83C\uDDF3\uD83C\uDDEC" },
+    { code: "KE", name: "Kenya", flag: "\uD83C\uDDF0\uD83C\uDDEA" },
+    { code: "EG", name: "Egypt", flag: "\uD83C\uDDEA\uD83C\uDDEC" },
+    { code: "IL", name: "Israel", flag: "\uD83C\uDDEE\uD83C\uDDF1" },
+    { code: "TR", name: "Turkey", flag: "\uD83C\uDDF9\uD83C\uDDF7" },
+    { code: "SA", name: "Saudi Arabia", flag: "\uD83C\uDDF8\uD83C\uDDE6" },
+    { code: "AE", name: "United Arab Emirates", flag: "\uD83C\uDDE6\uD83C\uDDEA" },
+    { code: "RU", name: "Russia", flag: "\uD83C\uDDF7\uD83C\uDDFA" },
+    { code: "UA", name: "Ukraine", flag: "\uD83C\uDDFA\uD83C\uDDE6" },
+    { code: "MX", name: "Mexico", flag: "\uD83C\uDDF2\uD83C\uDDFD" },
+    { code: "AR", name: "Argentina", flag: "\uD83C\uDDE6\uD83C\uDDF7" },
+    { code: "CL", name: "Chile", flag: "\uD83C\uDDE8\uD83C\uDDF1" },
+    { code: "CO", name: "Colombia", flag: "\uD83C\uDDE8\uD83C\uDDF4" },
+    { code: "PE", name: "Peru", flag: "\uD83C\uDDF5\uD83C\uDDEA" },
+    { code: "CR", name: "Costa Rica", flag: "\uD83C\uDDE8\uD83C\uDDF7" },
+    { code: "IS", name: "Iceland", flag: "\uD83C\uDDEE\uD83C\uDDF8" },
+    { code: "LK", name: "Sri Lanka", flag: "\uD83C\uDDF1\uD83C\uDDF0" },
+    { code: "BD", name: "Bangladesh", flag: "\uD83C\uDDE7\uD83C\uDDE9" },
+    { code: "PK", name: "Pakistan", flag: "\uD83C\uDDF5\uD83C\uDDF0" },
+];
+
+// Device/OS options with icons
+const DEVICES = [
+    { key: "windows", name: "Windows", icon: "🖥️" },
+    { key: "macos", name: "macOS", icon: "🍎" },
+    { key: "linux", name: "Linux", icon: "🐧" },
+    { key: "android", name: "Android", icon: "🤖" },
+    { key: "ios", name: "iOS", icon: "📱" },
+];
+
+interface GeoRule {
+    countryCode: string;
+    url: string;
+}
+
+interface DeviceRule {
+    deviceKey: string;
+    url: string;
+}
+
+interface AdvancedTargetingModalProps {
+    geoTargeting?: Record<string, string>;
+    deviceTargeting?: Record<string, string>;
+    onSave: (data: {
+        geoTargeting?: Record<string, string>;
+        deviceTargeting?: Record<string, string>;
+    }) => void;
+}
+
+export default function AdvancedTargetingModal({
+    geoTargeting = {},
+    deviceTargeting = {},
+    onSave,
+}: AdvancedTargetingModalProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    
+    // Geo targeting state
+    const [geoRules, setGeoRules] = useState<GeoRule[]>(
+        Object.entries(geoTargeting).map(([code, url]) => ({
+            countryCode: code,
+            url,
+        }))
+    );
+    const [selectedCountry, setSelectedCountry] = useState<string>("");
+    const [newGeoUrl, setNewGeoUrl] = useState<string>("");
+
+    // Device targeting state
+    const [deviceRules, setDeviceRules] = useState<DeviceRule[]>(
+        Object.entries(deviceTargeting).map(([key, url]) => ({
+            deviceKey: key,
+            url,
+        }))
+    );
+
+    const addGeoRule = () => {
+        if (!selectedCountry || !newGeoUrl.trim()) return;
+        if (geoRules.some(rule => rule.countryCode === selectedCountry)) return;
+
+        setGeoRules([...geoRules, {
+            countryCode: selectedCountry,
+            url: newGeoUrl.trim(),
+        }]);
+        setSelectedCountry("");
+        setNewGeoUrl("");
+    };
+
+    const updateGeoRule = (index: number, url: string) => {
+        const updated = [...geoRules];
+        updated[index].url = url;
+        setGeoRules(updated);
+    };
+
+    const updateDeviceRule = (index: number, url: string) => {
+        const updated = [...deviceRules];
+        updated[index].url = url;
+        setDeviceRules(updated);
+    };
+
+    const removeGeoRule = (index: number) => {
+        setGeoRules(geoRules.filter((_, i) => i !== index));
+    };
+
+    const removeDeviceRule = (index: number) => {
+        setDeviceRules(deviceRules.filter((_, i) => i !== index));
+    };
+
+    const handleSave = () => {
+        const geoData = geoRules.filter(rule => rule.url.trim()).reduce((acc, rule) => {
+            acc[rule.countryCode] = rule.url;
+            return acc;
+        }, {} as Record<string, string>);
+
+        const deviceData = deviceRules.filter(rule => rule.url.trim()).reduce((acc, rule) => {
+            acc[rule.deviceKey] = rule.url;
+            return acc;
+        }, {} as Record<string, string>);
+
+        onSave({
+            geoTargeting: Object.keys(geoData).length > 0 ? geoData : undefined,
+            deviceTargeting: Object.keys(deviceData).length > 0 ? deviceData : undefined,
+        });
+
+        setIsOpen(false);
+    };
+
+    const totalRules = geoRules.filter(r => r.url.trim()).length + deviceRules.filter(r => r.url.trim()).length;
+
+    const getCountryInfo = (code: string) => COUNTRIES.find(c => c.code === code);
+    const getDeviceInfo = (key: string) => DEVICES.find(d => d.key === key);
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" type="button" className="flex items-center gap-2">
+                    <Target size={16} />
+                    Advanced Targeting
+                    {totalRules > 0 && (
+                        <Badge variant="secondary" className="ml-1 h-5 text-xs">
+                            {totalRules}
+                        </Badge>
+                    )}
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+                <DialogHeader className="pb-4 border-b">
+                    <DialogTitle className="text-xl font-semibold">Targeting</DialogTitle>
+                    <DialogDescription>
+                        Redirect users to different URLs based on their location or device.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto">
+                    <Tabs defaultValue="geo" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                            <TabsTrigger value="geo" className="flex items-center gap-2">
+                                <Globe size={16} />
+                                Geo Targeting
+                            </TabsTrigger>
+                            <TabsTrigger value="device" className="flex items-center gap-2">
+                                <Smartphone size={16} />
+                                iOS Targeting
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="geo" className="space-y-6">
+                            {/* Existing Geo Rules */}
+                            {geoRules.map((rule, index) => {
+                                const country = getCountryInfo(rule.countryCode);
+                                return (
+                                    <div key={rule.countryCode} className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-lg select-none" style={{ fontFamily: "Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif" }}>
+                                                    {country?.flag || "🌍"}
+                                                </span>
+                                                <span className="font-medium text-sm">{country?.name || rule.countryCode}</span>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => removeGeoRule(index)}
+                                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        </div>
+                                        <Input
+                                            placeholder="https://example.com"
+                                            value={rule.url}
+                                            onChange={(e) => updateGeoRule(index, e.target.value)}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                );
+                            })}
+
+                            {/* Add New Geo Rule */}
+                            <div className="space-y-4 pt-4 border-t">
+                                <div className="flex items-center gap-2">
+                                    <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                                        <SelectTrigger className="w-48">
+                                            <SelectValue placeholder="Country" />
+                                        </SelectTrigger>
+                                        <SelectContent className="max-h-60">
+                                            {COUNTRIES.filter(country => 
+                                                !geoRules.some(rule => rule.countryCode === country.code)
+                                            ).map((country) => (
+                                                <SelectItem key={country.code} value={country.code}>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="select-none" style={{ fontFamily: "Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif" }}>
+                                                            {country.flag}
+                                                        </span>
+                                                        <span>{country.name}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Input
+                                        placeholder="https://example.com"
+                                        value={newGeoUrl}
+                                        onChange={(e) => setNewGeoUrl(e.target.value)}
+                                        className="flex-1"
+                                    />
+                                </div>
+                                <Button
+                                    onClick={addGeoRule}
+                                    disabled={!selectedCountry || !newGeoUrl.trim()}
+                                    variant="outline"
+                                    className="w-full"
+                                >
+                                    <Plus size={16} className="mr-2" />
+                                    Add location
+                                </Button>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="device" className="space-y-6">
+                            {/* iOS Targeting */}
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">📱</span>
+                                    <span className="font-medium text-sm">iOS Targeting</span>
+                                </div>
+                                <Input
+                                    placeholder="https://apps.apple.com/app/1611158928"
+                                    value={deviceRules.find(r => r.deviceKey === "ios")?.url || ""}
+                                    onChange={(e) => {
+                                        const existingIndex = deviceRules.findIndex(r => r.deviceKey === "ios");
+                                        if (existingIndex >= 0) {
+                                            updateDeviceRule(existingIndex, e.target.value);
+                                        } else if (e.target.value.trim()) {
+                                            setDeviceRules([...deviceRules, { deviceKey: "ios", url: e.target.value.trim() }]);
+                                        }
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            {/* Android Targeting */}
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">🤖</span>
+                                    <span className="font-medium text-sm">Android Targeting</span>
+                                </div>
+                                <Input
+                                    placeholder="https://play.google.com/store/apps/details?id=com.disney.disneyplus"
+                                    value={deviceRules.find(r => r.deviceKey === "android")?.url || ""}
+                                    onChange={(e) => {
+                                        const existingIndex = deviceRules.findIndex(r => r.deviceKey === "android");
+                                        if (existingIndex >= 0) {
+                                            updateDeviceRule(existingIndex, e.target.value);
+                                        } else if (e.target.value.trim()) {
+                                            setDeviceRules([...deviceRules, { deviceKey: "android", url: e.target.value.trim() }]);
+                                        }
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            {/* Other Device Rules */}
+                            {deviceRules.filter(rule => !["ios", "android"].includes(rule.deviceKey)).map((rule) => {
+                                const device = getDeviceInfo(rule.deviceKey);
+                                const actualIndex = deviceRules.findIndex(r => r.deviceKey === rule.deviceKey);
+                                return (
+                                    <div key={rule.deviceKey} className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-lg">{device?.icon}</span>
+                                                <span className="font-medium text-sm">{device?.name} Targeting</span>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => removeDeviceRule(actualIndex)}
+                                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        </div>
+                                        <Input
+                                            placeholder="https://example.com"
+                                            value={rule.url}
+                                            onChange={(e) => updateDeviceRule(actualIndex, e.target.value)}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button variant="outline" onClick={() => setIsOpen(false)}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSave} className="bg-black text-white hover:bg-gray-800">
+                        Add targeting
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}

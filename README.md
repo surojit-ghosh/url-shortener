@@ -11,6 +11,36 @@
 
 A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Prisma. Designed for simplicity, speed, and extensibility.
 
+## Features
+
+### 🔐 Password Protection
+
+- Secure your links with optional password protection
+- Bcrypt hashing with 12 salt rounds
+- Clean password input with visibility toggle
+- Password verification before redirect
+
+### 🌍 Geo Targeting
+
+- Country-based redirects using IP geolocation
+- Support for 10+ countries with visual flag indicators
+- Easy setup through intuitive modal interface
+- Powered by geoip-lite for accurate detection
+
+### 📱 Device Targeting
+
+- OS/Device-based redirects (Windows, macOS, Linux, Android, iOS)
+- User-agent parsing for device detection
+- Visual device icons in the targeting interface
+- Seamless integration with existing workflow
+
+### 🎯 Advanced Targeting
+
+- Combined geo and device targeting rules
+- Priority-based targeting (geo first, then device)
+- Fallback to default URL if no rules match
+- Real-time rule management (add/remove/edit)
+
 ## Tech Stack
 
 - [Next.js](https://nextjs.org/) – framework
@@ -35,10 +65,10 @@ A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Pr
         - [x] Destination URL
         - [x] Short URL key (optional input + [Generate Random] button)
         - [x] Availability check for custom key
-        - [ ] Expire time (optional date, time picker)
-        - [ ] Password
-        - [ ] Geo Targeting (country-based redirect)
-        - [ ] Device Targeting (OS-based redirect)
+        - [x] Expire time (optional date, time picker)
+        - [x] Password
+        - [x] Geo Targeting (country-based redirect)
+        - [x] Device Targeting (OS-based redirect)
         - [ ] Metadata (title, description, image)
         - [ ] QR code generation
     - [ ] Search

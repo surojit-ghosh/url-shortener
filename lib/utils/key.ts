@@ -24,6 +24,8 @@ export const getLinkByKey = async (key: string) => {
             id: true,
             url: true,
             password: true,
+            geoTargeting: true,
+            deviceTargeting: true,
             expiresAt: true
         }
     });
