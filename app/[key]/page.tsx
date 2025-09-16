@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getLinkByKey } from "@/lib/utils/key";
 import Link from "next/link";
+import PasswordVerification from "@/components/password-verification";
 
 interface PageProps {
     params: Promise<{
@@ -48,9 +49,11 @@ export default async function RedirectPage({ params }: PageProps) {
         notFound();
     }
 
-    // Log the URL for debugging
-    console.log("Redirecting to:", result.link.url);
+    // Check if the link is password protected
+    if (result.link.password) {
+        return <PasswordVerification linkKey={key} />;
+    }
 
-    // Redirect happens outside try-catch since it throws NEXT_REDIRECT intentionally
+    // If not password protected, redirect to the original URL
     redirect(result.link.url);
 }

@@ -9,6 +9,13 @@ export const linkSchema = z.object({
             /^[a-zA-Z0-9_-]+$/,
             "Slug can only contain letters, numbers, hyphens, and underscores (no spaces)"
         ),
+    password: z.string().optional().refine(
+        (password) => {
+            if (!password || password === "") return true; // Allow empty string or undefined
+            return password.length >= 4; // Minimum 4 characters if provided
+        },
+        { message: "Password must be at least 4 characters long" }
+    ),
     expiresAt: z.string().optional().refine(
         (date) => {
             if (!date || date === "") return true; // Allow empty string or undefined
@@ -26,6 +33,13 @@ export const linkFormSchema = linkSchema.omit({ createdAt: true, updatedAt: true
 
 export type ILink = z.infer<typeof linkSchema>;
 export type ILinkForm = z.infer<typeof linkFormSchema>;
+
+// Schema for password verification
+export const passwordVerificationSchema = z.object({
+    password: z.string().min(1, "Password is required"),
+});
+
+export type IPasswordVerification = z.infer<typeof passwordVerificationSchema>;
 
 export type IPaginationQuery = {
     page: number;

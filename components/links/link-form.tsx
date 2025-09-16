@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { siteConfig } from "@/config/site";
-import { Shuffle } from "lucide-react";
+import { Shuffle, Lock, LockOpen, Eye, EyeOff } from "lucide-react";
 import { ILinkForm, linkFormSchema } from "@/lib/zod/link.schema";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,8 @@ import { toast } from "sonner";
 const LinkForm = ({ close }: { close: () => void }) => {
     const [isPending, startTransition] = useTransition();
     const [defaultValues, setDefaultValues] = useState<ILinkForm | undefined>(undefined);
+    const [isPasswordProtected, setIsPasswordProtected] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // TanStack Query mutation for creating links
     const createLinkMutation = useCreateLink();
@@ -37,7 +39,13 @@ const LinkForm = ({ close }: { close: () => void }) => {
         reValidateMode: "onChange",
     });
     const keyInput = useWatch({ control, name: "key" });
+    const passwordInput = useWatch({ control, name: "password" });
     const [debouncedKey, setDebouncedKey] = useDebounceValue(keyInput, 500);
+
+    // Update password protection state when password field changes
+    useEffect(() => {
+        setIsPasswordProtected(Boolean(passwordInput && passwordInput.length > 0));
+    }, [passwordInput]);
 
     // Load default values when component mounts
     useEffect(() => {
@@ -172,6 +180,66 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 />
                 {errors.expiresAt && (
                     <p className="text-sm text-red-500">{errors.expiresAt.message}</p>
+                )}
+            </div>
+
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="password-protection">Password Protection</Label>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                            const newState = !isPasswordProtected;
+                            setIsPasswordProtected(newState);
+                            if (!newState) {
+                                setValue("password", "");
+                            }
+                        }}
+                        className="h-8 text-xs"
+                    >
+                        {isPasswordProtected ? (
+                            <>
+                                <LockOpen size={14} className="mr-1" />
+                                Remove Protection
+                            </>
+                        ) : (
+                            <>
+                                <Lock size={14} className="mr-1" />
+                                Add Protection
+                            </>
+                        )}
+                    </Button>
+                </div>
+                
+                {isPasswordProtected && (
+                    <div className="relative">
+                        <Input
+                            {...register("password")}
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter password (min. 4 characters)"
+                            className="pr-10"
+                        />
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        >
+                            {showPassword ? (
+                                <EyeOff size={16} className="text-gray-400" />
+                            ) : (
+                                <Eye size={16} className="text-gray-400" />
+                            )}
+                        </Button>
+                    </div>
+                )}
+                
+                {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password.message}</p>
                 )}
             </div>
 

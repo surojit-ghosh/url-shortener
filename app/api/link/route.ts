@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { checkIfKeyExist } from "@/lib/utils";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
     const session = await auth.api.getSession({
@@ -32,12 +33,19 @@ export async function POST(request: NextRequest) {
             key: string;
             url: string;
             userId: string;
+            password?: string;
             expiresAt?: Date;
         } = {
             key: data.key,
             url: data.url,
             userId: session?.user.id as string,
         };
+
+        // Hash password if provided
+        if (data.password && data.password.trim() !== "") {
+            const saltRounds = 12;
+            linkData.password = await bcrypt.hash(data.password, saltRounds);
+        }
 
         // Add expiresAt if provided
         if (data.expiresAt) {
@@ -76,6 +84,14 @@ export async function GET(request: NextRequest) {
     const links = await prisma.link.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
+        select: {
+            id: true,
+            key: true,
+            url: true,
+            createdAt: true,
+            expiresAt: true,
+            password: true, // Include to check if password exists
+        }
     });
 
     return NextResponse.json({ data: links });

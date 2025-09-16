@@ -19,7 +19,13 @@ export const checkIfKeyExist = async (key: string): Promise<boolean> => {
 
 export const getLinkByKey = async (key: string) => {
     const link = await prisma.link.findUnique({
-        where: { key: key }
+        where: { key: key },
+        select: {
+            id: true,
+            url: true,
+            password: true,
+            expiresAt: true
+        }
     });
 
     if (!link) {
