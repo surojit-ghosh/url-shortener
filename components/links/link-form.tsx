@@ -74,7 +74,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 fieldErrors?: Partial<Record<keyof ILinkForm, string[]>>;
                 status?: number;
             };
-            
+
             if (apiError.fieldErrors) {
                 Object.entries(apiError.fieldErrors).forEach(([field, messages]) => {
                     if (messages && messages.length > 0) {

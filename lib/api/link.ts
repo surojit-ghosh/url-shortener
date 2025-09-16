@@ -11,7 +11,7 @@ export async function getLinks(params: IPaginationQuery): Promise<ILinkResponse>
         page: params.page.toString(),
         limit: params.limit.toString(),
     });
-    
+
     const response = await fetch(`/api/link?${searchParams}`, {
         method: "GET",
         headers: {
@@ -37,12 +37,12 @@ export async function createLink(linkData: ILinkForm): Promise<ILink> {
 
     if (!response.ok) {
         const errorData = await response.json();
-        
+
         // Create a more detailed error object that includes field errors
         const error: ApiError = new Error(errorData.message || `Failed to create link: ${response.statusText}`);
         error.fieldErrors = errorData.fieldErrors;
         error.status = response.status;
-        
+
         throw error;
     }
 
