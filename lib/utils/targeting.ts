@@ -23,7 +23,7 @@ export async function getCountryFromIP(ip: string): Promise<string | null> {
     try {
         const geoipModule = await initGeoIP();
         if (!geoipModule) return null;
-        
+
         const geo = geoipModule.lookup(ip);
         return geo?.country || null;
     } catch (error) {
