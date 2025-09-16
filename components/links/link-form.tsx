@@ -69,18 +69,14 @@ const LinkForm = ({ close }: { close: () => void }) => {
             setDebouncedKey("");
         } catch (error: unknown) {
             // Handle validation errors from the server
-            const axiosError = error as {
-                response?: {
-                    data?: {
-                        fieldErrors?: Partial<Record<keyof ILinkForm, string[]>>;
-                        message?: string;
-                    };
-                };
+            const apiError = error as {
+                message?: string;
+                fieldErrors?: Partial<Record<keyof ILinkForm, string[]>>;
+                status?: number;
             };
-
-            if (axiosError?.response?.data?.fieldErrors) {
-                const fieldErrors = axiosError.response.data.fieldErrors;
-                Object.entries(fieldErrors).forEach(([field, messages]) => {
+            
+            if (apiError.fieldErrors) {
+                Object.entries(apiError.fieldErrors).forEach(([field, messages]) => {
                     if (messages && messages.length > 0) {
                         setError(field as keyof ILinkForm, {
                             type: "manual",
@@ -90,10 +86,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 });
             } else {
                 // Generic error handling
-                toast.error(
-                    axiosError?.response?.data?.message ||
-                        "Failed to create link. Please try again."
-                );
+                toast.error(apiError.message || "Failed to create link. Please try again.");
             }
         }
     };
