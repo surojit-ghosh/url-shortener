@@ -1,20 +1,25 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { siteConfig } from "@/config/site";
 import { Shuffle } from "lucide-react";
-import { LinkData, linkSchema } from "@/lib/zod/link.schema";
-import { useForm, useWatch } from "react-hook-form";
+import { ILinkForm, linkFormSchema } from "@/lib/zod/link.schema";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useTransition } from "react";
-import { checkIfKeyExists, genereateRandomKey, getDefaultValues } from "@/actions/link.action";
+import { useEffect, useTransition, useState } from "react";
+import { checkIfKeyExists, genereateRandomKey, getDefaultValues } from "@/lib/actions/link.action";
+import { useCreateLink } from "@/lib/queries/links";
 import { useDebounceValue } from "usehooks-ts";
 import { toast } from "sonner";
 
 const LinkForm = ({ close }: { close: () => void }) => {
     const [isPending, startTransition] = useTransition();
+    const [defaultValues, setDefaultValues] = useState<ILinkForm | undefined>(undefined);
+    
+    // TanStack Query mutation for creating links
+    const createLinkMutation = useCreateLink();
+    
     const {
         register,
         handleSubmit,
@@ -25,40 +30,70 @@ const LinkForm = ({ close }: { close: () => void }) => {
         trigger,
         reset,
         formState: { errors, isSubmitting, isValid },
-    } = useForm<LinkData>({
-        resolver: zodResolver(linkSchema),
-        defaultValues: async () => await getDefaultValues(),
+    } = useForm<ILinkForm>({
+        resolver: zodResolver(linkFormSchema),
+        defaultValues,
+        mode: "onChange",
+        reValidateMode: "onChange",
     });
     const keyInput = useWatch({ control, name: "key" });
     const [debouncedKey, setDebouncedKey] = useDebounceValue(keyInput, 500);
 
-    const onSubmit = async (formData: LinkData) => {
-        const res = await fetch("/api/link", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...formData }),
-        });
-
-        const result = await res.json();
-
-        if (!res.ok) {
-            if (result?.fieldErrors) {
-                const fieldErrors = result.fieldErrors as Partial<Record<keyof LinkData, string[]>>;
-                Object.entries(fieldErrors).forEach(([field, messages]) => {
-                    setError(field as keyof LinkData, {
-                        type: "manual",
-                        message: messages?.[0],
-                    });
-                });
+    // Load default values when component mounts
+    useEffect(() => {
+        const loadDefaultValues = async () => {
+            try {
+                const defaultVals = await getDefaultValues();
+                setDefaultValues(defaultVals);
+                reset(defaultVals);
+            } catch (error) {
+                console.error("Failed to load default values:", error);
+                // Fallback to empty defaults if the function fails
+                const fallbackDefaults: ILinkForm = { url: "", key: "" };
+                setDefaultValues(fallbackDefaults);
+                reset(fallbackDefaults);
             }
-            return;
+        };
+
+        loadDefaultValues();
+    }, [reset, setDefaultValues]);
+
+    const onSubmit = async (formData: ILinkForm) => {
+        try {
+            await createLinkMutation.mutateAsync(formData);
+            
+            // Reset form and close modal
+            reset();
+            toast.success("Link created successfully!");
+            close();
+            setDebouncedKey("");
+            
+        } catch (error: unknown) {
+            // Handle validation errors from the server
+            const axiosError = error as { 
+                response?: { 
+                    data?: { 
+                        fieldErrors?: Partial<Record<keyof ILinkForm, string[]>>;
+                        message?: string;
+                    };
+                };
+            };
+            
+            if (axiosError?.response?.data?.fieldErrors) {
+                const fieldErrors = axiosError.response.data.fieldErrors;
+                Object.entries(fieldErrors).forEach(([field, messages]) => {
+                    if (messages && messages.length > 0) {
+                        setError(field as keyof ILinkForm, {
+                            type: "manual",
+                            message: messages[0],
+                        });
+                    }
+                });
+            } else {
+                // Generic error handling
+                toast.error(axiosError?.response?.data?.message || "Failed to create link. Please try again.");
+            }
         }
-
-        reset();
-
-        toast.success("Link created successfully!");
-        close();
-        setDebouncedKey("");
     };
 
     const handleGenerateKey = () => {
@@ -126,9 +161,32 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 {errors.key && <p className="text-sm text-red-500">{errors.key.message}</p>}
             </div>
 
+            <div className="space-y-2">
+                <Label htmlFor="expiresAt">Expiration Date & Time (Optional)</Label>
+                <Controller
+                    name="expiresAt"
+                    control={control}
+                    render={({ field }) => (
+                        <DateTimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select expiration date and time"
+                            disabled={isSubmitting}
+                        />
+                    )}
+                />
+                {errors.expiresAt && (
+                    <p className="text-sm text-red-500">{errors.expiresAt.message}</p>
+                )}
+            </div>
+
             <div className="border-t pt-4">
-                <Button type="submit" disabled={isSubmitting || !isValid} className="float-right">
-                    Create Link
+                <Button 
+                    type="submit" 
+                    disabled={isSubmitting || !isValid || createLinkMutation.isPending} 
+                    className="float-right"
+                >
+                    {createLinkMutation.isPending ? "Creating..." : "Create Link"}
                 </Button>
             </div>
         </form>

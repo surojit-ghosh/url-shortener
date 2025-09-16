@@ -51,10 +51,9 @@ export default function LoginPage() {
                     console.error("Login error:", ctx.error);
                     toast.error(ctx.error.message);
                 },
-                onSuccess: (ctx) => {
+                onSuccess: () => {
                     router.push("/dashboard/links");
                     setLoading(false);
-                    console.log("Login success:", ctx.data);
                     toast.success("Logged in successfully!");
                 },
             }

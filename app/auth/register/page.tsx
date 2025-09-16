@@ -4,7 +4,7 @@ import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { siteConfig } from "@/lib/config";
+import { siteConfig } from "@/config/site";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,10 +59,9 @@ export default function RegisterPage() {
                     console.error("Registration error:", ctx.error);
                     toast.error(ctx.error.message);
                 },
-                onSuccess: (ctx) => {
+                onSuccess: () => {
                     setLoading(false);
                     router.push("/dashboard/links");
-                    console.log("Registration success:", ctx.data);
                     toast.success("Account created successfully! Check your email to verify.");
                 },
             }

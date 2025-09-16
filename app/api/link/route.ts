@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { linkSchema } from "@/lib/zod/link.schema";
+import { linkFormSchema } from "@/lib/zod/link.schema";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const data = linkSchema.parse(body);
+        const data = linkFormSchema.parse(body);
         const isExist = await checkIfKeyExist(data.key);
 
         if (isExist) {
@@ -26,7 +26,25 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-        const newLink = await prisma.link.create({ data: { key: data.key, url: data.url, userId: session?.user.id as string } });
+
+        // Prepare the data for database insertion
+        const linkData: {
+            key: string;
+            url: string;
+            userId: string;
+            expiresAt?: Date;
+        } = {
+            key: data.key,
+            url: data.url,
+            userId: session?.user.id as string,
+        };
+
+        // Add expiresAt if provided
+        if (data.expiresAt) {
+            linkData.expiresAt = new Date(data.expiresAt);
+        }
+
+        const newLink = await prisma.link.create({ data: linkData });
 
         return NextResponse.json(newLink, { status: 201 });
     } catch (err) {
@@ -44,4 +62,21 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+export async function GET(request: NextRequest) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+    const userId = session?.user?.id;
+    const { searchParams } = new URL(request.url);
+
+    console.log(searchParams);
+
+    const links = await prisma.link.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ data: links });
 }

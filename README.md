@@ -20,23 +20,21 @@ A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Pr
 - [Prisma](https://www.prisma.io/) – ORM
 - [shadcn/ui](https://ui.shadcn.com/) – UI components
 - [better-auth](https://www.better-auth.com/) – Authentication
+- [TanStack Query](https://tanstack.com/query/latest) – Data fetching
 
 ## Roadmap
 
 - User Authentication & Authorization
-    - [x] Email & Pass
-    - [ ] Google
+    - [x] Email & Password
     - [x] Sign up
     - [x] Sign in
     - [x] Log in
     - [ ] Forget password
-    - [ ] Change email
-    - [ ] Change Name
 - Dashboard - Links
     - Create
-        - [ ] Destination URL
-        - [ ] Short URL key (optional input + [Generate Random] button)
-        - [ ] Availability check for custom key
+        - [x] Destination URL
+        - [x] Short URL key (optional input + [Generate Random] button)
+        - [x] Availability check for custom key
         - [ ] Expire time (optional date, time picker)
         - [ ] Password
         - [ ] Geo Targeting (country-based redirect)

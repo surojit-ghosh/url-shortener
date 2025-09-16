@@ -24,7 +24,20 @@ const LinkModal = () => {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
+            <DialogContent
+                className="max-h-[90vh] max-w-6xl overflow-y-auto"
+                onInteractOutside={(e) => {
+                    // Check if the click was on a calendar or popover element
+                    const target = e.target as Element;
+                    if (
+                        target?.closest("[data-radix-popper-content-wrapper]") ||
+                        target?.closest("[data-slot=\'calendar']") ||
+                        target?.closest(".rdp")
+                    ) {
+                        e.preventDefault();
+                    }
+                }}
+            >
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">New Link</DialogTitle>
                 </DialogHeader>

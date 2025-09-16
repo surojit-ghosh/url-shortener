@@ -9,12 +9,13 @@ datasource db {
 }
 
 model Link {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   url       String
-  key       String   @unique
-  createdAt DateTime @default(now())
+  key       String    @unique
+  expiresAt DateTime? // Optional expiration date
+  createdAt DateTime  @default(now())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("links")
 }

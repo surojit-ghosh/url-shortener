@@ -17,6 +17,28 @@ export const checkIfKeyExist = async (key: string): Promise<boolean> => {
     return Boolean(existing);
 };
 
+export const getLinkByKey = async (key: string) => {
+    const link = await prisma.link.findUnique({
+        where: { key: key }
+    });
+
+    if (!link) {
+        return null;
+    }
+
+    // Check if link is expired
+    if (link.expiresAt && new Date() > link.expiresAt) {
+        return { expired: true, link: null };
+    }
+
+    return { expired: false, link };
+};
+
+export const isLinkExpired = (expiresAt: Date | null): boolean => {
+    if (!expiresAt) return false;
+    return new Date() > expiresAt;
+};
+
 export const getRandomKey = async (): Promise<string> => {
     const key = nanoid();
 

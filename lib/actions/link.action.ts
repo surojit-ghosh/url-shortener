@@ -15,5 +15,6 @@ export const getDefaultValues = async () => {
     return {
         url: "",
         key: key,
+        expiresAt: undefined, // Optional expiration date
     };
 };
