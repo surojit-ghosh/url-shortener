@@ -19,7 +19,7 @@ export default function PasswordVerification({ linkKey }: PasswordVerificationPr
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!password.trim()) {
             setError("Password is required");
             return;
@@ -57,7 +57,7 @@ export default function PasswordVerification({ linkKey }: PasswordVerificationPr
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
             <Card className="w-full max-w-md shadow-lg">
-                <CardHeader className="text-center space-y-2">
+                <CardHeader className="space-y-2 text-center">
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                         <Lock className="h-6 w-6 text-blue-600" />
                     </div>
@@ -91,7 +91,7 @@ export default function PasswordVerification({ linkKey }: PasswordVerificationPr
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
                                     disabled={isSubmitting}
                                 >
                                     {showPassword ? (
@@ -102,7 +102,7 @@ export default function PasswordVerification({ linkKey }: PasswordVerificationPr
                                 </Button>
                             </div>
                             {error && (
-                                <p className="text-sm text-red-500 flex items-center gap-1">
+                                <p className="flex items-center gap-1 text-sm text-red-500">
                                     {error}
                                 </p>
                             )}

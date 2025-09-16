@@ -11,16 +11,16 @@ export async function POST(
     try {
         const { key } = await params;
         const body = await request.json();
-        
+
         // Validate the input
         const { password } = passwordVerificationSchema.parse(body);
 
         // Find the link
         const link = await prisma.link.findUnique({
             where: { key },
-            select: { 
-                id: true, 
-                password: true, 
+            select: {
+                id: true,
+                password: true,
                 url: true,
                 expiresAt: true
             }
@@ -61,9 +61,9 @@ export async function POST(
 
         // Password is correct, return the redirect URL
         return NextResponse.json(
-            { 
-                success: true, 
-                redirectUrl: link.url 
+            {
+                success: true,
+                redirectUrl: link.url
             },
             { status: 200 }
         );

@@ -212,7 +212,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
                         )}
                     </Button>
                 </div>
-                
+
                 {isPasswordProtected && (
                     <div className="relative">
                         <Input
@@ -227,7 +227,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
                         >
                             {showPassword ? (
                                 <EyeOff size={16} className="text-gray-400" />
@@ -237,7 +237,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
                         </Button>
                     </div>
                 )}
-                
+
                 {errors.password && (
                     <p className="text-sm text-red-500">{errors.password.message}</p>
                 )}
