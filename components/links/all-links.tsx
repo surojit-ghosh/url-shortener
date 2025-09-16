@@ -3,14 +3,8 @@ import { useEffect, useRef } from "react";
 import LinkCard from "./link-card";
 
 const AllLinks = () => {
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-        error,
-    } = useInfiniteLinks(10);
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
+        useInfiniteLinks(10);
 
     // Ref for the intersection observer element
     const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -47,9 +41,9 @@ const AllLinks = () => {
                 {Array.from({ length: 3 }).map((_, i) => (
                     <div
                         key={i}
-                        className="border-muted flex items-center gap-4 border p-4 animate-pulse"
+                        className="border-muted flex animate-pulse items-center gap-4 border p-4"
                     >
-                        <div className="bg-muted rounded-full h-12 w-12"></div>
+                        <div className="bg-muted h-12 w-12 rounded-full"></div>
                         <div className="flex-1 space-y-2">
                             <div className="bg-muted h-4 w-3/4 rounded"></div>
                             <div className="bg-muted h-3 w-1/2 rounded"></div>
@@ -83,9 +77,9 @@ const AllLinks = () => {
             {/* Invisible element to trigger intersection observer */}
             <div ref={loadMoreRef} className="h-4">
                 {isFetchingNextPage && (
-                    <div className="text-center py-4">
+                    <div className="py-4 text-center">
                         <div className="inline-flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                            <div className="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-b-2"></div>
                             Loading more links...
                         </div>
                     </div>
@@ -94,14 +88,14 @@ const AllLinks = () => {
 
             {/* End of list indicator */}
             {!hasNextPage && allLinks.length > 0 && (
-                <div className="text-center py-4 text-muted-foreground text-sm">
+                <div className="text-muted-foreground py-4 text-center text-sm">
                     You&apos;ve reached the end of your links
                 </div>
             )}
 
             {/* Empty state */}
             {allLinks.length === 0 && !isLoading && (
-                <div className="text-center py-8">
+                <div className="py-8 text-center">
                     <p className="text-muted-foreground">No links found. Create your first link!</p>
                 </div>
             )}

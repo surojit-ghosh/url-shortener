@@ -31,7 +31,7 @@ export const useInfiniteLinks = (limit: number = 10) => {
 // Mutation hook for creating new links
 export const useCreateLink = () => {
     const queryClient = useQueryClient();
-    
+
     return useMutation({
         mutationFn: async (linkData: ILinkForm): Promise<ILink> => {
             return await createLink(linkData);
@@ -39,7 +39,7 @@ export const useCreateLink = () => {
         onSuccess: () => {
             // Invalidate and refetch links queries
             queryClient.invalidateQueries({ queryKey: ["links"] });
-            
+
             // Optionally, you can also reset the infinite query to start from page 1
             queryClient.resetQueries({ queryKey: ["links", "infinite"] });
         },

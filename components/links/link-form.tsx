@@ -16,10 +16,10 @@ import { toast } from "sonner";
 const LinkForm = ({ close }: { close: () => void }) => {
     const [isPending, startTransition] = useTransition();
     const [defaultValues, setDefaultValues] = useState<ILinkForm | undefined>(undefined);
-    
+
     // TanStack Query mutation for creating links
     const createLinkMutation = useCreateLink();
-    
+
     const {
         register,
         handleSubmit,
@@ -61,24 +61,23 @@ const LinkForm = ({ close }: { close: () => void }) => {
     const onSubmit = async (formData: ILinkForm) => {
         try {
             await createLinkMutation.mutateAsync(formData);
-            
+
             // Reset form and close modal
             reset();
             toast.success("Link created successfully!");
             close();
             setDebouncedKey("");
-            
         } catch (error: unknown) {
             // Handle validation errors from the server
-            const axiosError = error as { 
-                response?: { 
-                    data?: { 
+            const axiosError = error as {
+                response?: {
+                    data?: {
                         fieldErrors?: Partial<Record<keyof ILinkForm, string[]>>;
                         message?: string;
                     };
                 };
             };
-            
+
             if (axiosError?.response?.data?.fieldErrors) {
                 const fieldErrors = axiosError.response.data.fieldErrors;
                 Object.entries(fieldErrors).forEach(([field, messages]) => {
@@ -91,7 +90,10 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 });
             } else {
                 // Generic error handling
-                toast.error(axiosError?.response?.data?.message || "Failed to create link. Please try again.");
+                toast.error(
+                    axiosError?.response?.data?.message ||
+                        "Failed to create link. Please try again."
+                );
             }
         }
     };
@@ -181,9 +183,9 @@ const LinkForm = ({ close }: { close: () => void }) => {
             </div>
 
             <div className="border-t pt-4">
-                <Button 
-                    type="submit" 
-                    disabled={isSubmitting || !isValid || createLinkMutation.isPending} 
+                <Button
+                    type="submit"
+                    disabled={isSubmitting || !isValid || createLinkMutation.isPending}
                     className="float-right"
                 >
                     {createLinkMutation.isPending ? "Creating..." : "Create Link"}
