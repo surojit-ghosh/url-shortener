@@ -1,12 +1,30 @@
-import geoip from "geoip-lite";
 import { UAParser } from "ua-parser-js";
+
+// Dynamically import geoip-lite to avoid build-time issues
+let geoip: typeof import("geoip-lite") | null = null;
+
+// Initialize geoip-lite only when needed
+async function initGeoIP() {
+    if (!geoip) {
+        try {
+            geoip = await import("geoip-lite");
+        } catch (error) {
+            console.error("Failed to load geoip-lite:", error);
+            return null;
+        }
+    }
+    return geoip;
+}
 
 /**
  * Get country code from IP address
  */
-export function getCountryFromIP(ip: string): string | null {
+export async function getCountryFromIP(ip: string): Promise<string | null> {
     try {
-        const geo = geoip.lookup(ip);
+        const geoipModule = await initGeoIP();
+        if (!geoipModule) return null;
+        
+        const geo = geoipModule.lookup(ip);
         return geo?.country || null;
     } catch (error) {
         console.error("Error getting country from IP:", error);

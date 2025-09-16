@@ -67,7 +67,7 @@ export default async function RedirectPage({ params }: PageProps) {
     const clientIP = getClientIP(headersList);
 
     // Determine country and device
-    const countryCode = getCountryFromIP(clientIP);
+    const countryCode = await getCountryFromIP(clientIP);
     const deviceType = getDeviceFromUserAgent(userAgent);
 
     // Find the appropriate URL based on targeting rules

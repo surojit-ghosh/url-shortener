@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     });
     const userId = session?.user?.id;
     const { searchParams } = new URL(request.url);
-
+    console.log("Search Params:", searchParams);
 
     const links = await prisma.link.findMany({
         where: { userId },

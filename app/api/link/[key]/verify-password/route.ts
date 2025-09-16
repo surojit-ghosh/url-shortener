@@ -66,7 +66,7 @@ export async function POST(
         const userAgent = request.headers.get("user-agent") || "";
         const clientIP = getClientIP(request.headers);
 
-        const countryCode = getCountryFromIP(clientIP);
+        const countryCode = await getCountryFromIP(clientIP);
         const deviceType = getDeviceFromUserAgent(userAgent);
 
         const targetUrl = findTargetedURL(

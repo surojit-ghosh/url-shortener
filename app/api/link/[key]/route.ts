@@ -41,7 +41,7 @@ export async function GET(
         // Return the URL for redirection
         return NextResponse.json({
             url: result.link.url,
-            key: result.link.key,
+            key: key, // Use the key parameter from the URL
             expiresAt: result.link.expiresAt
         });
 
