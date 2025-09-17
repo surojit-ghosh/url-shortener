@@ -38,11 +38,8 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
     const displayUrl = originalUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
     const filename = `qr-code-${shortKey}`;
 
-    console.log("QRCodeModal rendered", { shortKey, originalUrl, shortUrl });
-
     useEffect(() => {
         const generateQRCodeImage = async () => {
-            console.log("Starting QR code generation for:", shortUrl);
             setIsGenerating(true);
             try {
                 const dataUrl = await generateQRCode(shortUrl, {
@@ -53,7 +50,6 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
                         light: "#FFFFFF",
                     },
                 });
-                console.log("QR code generated successfully");
                 setQrCodeDataUrl(dataUrl);
             } catch (error) {
                 console.error("Error generating QR code:", error);
@@ -104,32 +100,26 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
         try {
             await navigator.clipboard.writeText(shortUrl);
             toast.success("Short URL copied to clipboard!");
-        } catch {
+        } catch (error) {
+            console.error("Failed to copy URL:", error);
             toast.error("Failed to copy URL");
         }
     };
 
     return (
         <>
-            <Dialog
-                open={isOpen}
-                onOpenChange={(open) => {
-                    console.log("Dialog onOpenChange:", open);
-                    setIsOpen(open);
-                }}
-            >
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
                     {trigger || (
                         <button
                             className="hover:bg-muted cursor-pointer rounded-full p-2"
                             title="Show QR Code"
-                            onClick={() => console.log("QR trigger clicked")}
                         >
                             <QrCode size={16} />
                         </button>
                     )}
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <QrCode size={20} />
@@ -140,14 +130,17 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {/* QR Code Display */}
                         <div className="flex justify-center">
-                            <div className="border-muted rounded-lg border-2 p-4">
+                            <div className="border-muted rounded-lg border-2 bg-white p-4">
                                 {isGenerating ? (
                                     <div className="flex h-[300px] w-[300px] items-center justify-center">
-                                        <div className="text-muted-foreground">
-                                            Generating QR code...
+                                        <div className="text-center">
+                                            <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                                            <div className="text-muted-foreground">
+                                                Generating QR code...
+                                            </div>
                                         </div>
                                     </div>
                                 ) : qrCodeDataUrl ? (
@@ -160,7 +153,8 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
                                     />
                                 ) : (
                                     <div className="flex h-[300px] w-[300px] items-center justify-center">
-                                        <div className="text-muted-foreground">
+                                        <div className="text-muted-foreground text-center">
+                                            <QrCode size={32} className="mx-auto mb-2 opacity-50" />
                                             Failed to generate QR code
                                         </div>
                                     </div>
@@ -169,24 +163,27 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
                         </div>
 
                         {/* URL Information */}
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <div>
-                                <div className="text-sm font-medium">Short URL</div>
-                                <div className="bg-muted flex items-center justify-between rounded-md p-2">
-                                    <code className="text-sm">{shortUrl}</code>
+                                <div className="mb-2 text-sm font-medium">Short URL</div>
+                                <div className="bg-muted/50 flex items-center justify-between rounded-md border p-3">
+                                    <code className="mr-2 flex-1 font-mono text-sm text-blue-600">
+                                        {shortUrl}
+                                    </code>
                                     <Button
                                         variant="ghost"
-                                        size="icon"
+                                        size="sm"
                                         onClick={handleCopyUrl}
-                                        className="h-6 w-6"
+                                        className="h-8 w-8 p-0"
+                                        title="Copy URL"
                                     >
-                                        <Copy size={12} />
+                                        <Copy size={14} />
                                     </Button>
                                 </div>
                             </div>
                             <div>
-                                <div className="text-sm font-medium">Original URL</div>
-                                <div className="text-muted-foreground truncate text-sm">
+                                <div className="mb-2 text-sm font-medium">Original URL</div>
+                                <div className="text-muted-foreground bg-muted/30 rounded border p-2 text-sm break-all">
                                     {displayUrl}
                                 </div>
                             </div>
@@ -195,11 +192,12 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
                         <Separator />
 
                         {/* Action Buttons */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                             <Button
                                 onClick={handleDownload}
                                 disabled={isDownloading || !qrCodeDataUrl}
                                 className="flex-1"
+                                variant="default"
                             >
                                 <Download size={16} className="mr-2" />
                                 {isDownloading ? "Downloading..." : "Download"}
@@ -211,7 +209,7 @@ export const QRCodeModal = ({ shortKey, originalUrl, baseUrl = "", trigger }: QR
                                 className="flex-1"
                             >
                                 <Copy size={16} className="mr-2" />
-                                Copy Image
+                                {isCopying ? "Copying..." : "Copy Image"}
                             </Button>
                         </div>
                     </div>

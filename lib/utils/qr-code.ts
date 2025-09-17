@@ -17,12 +17,13 @@ export const generateQRCode = async (
     options: QRCodeOptions = {}
 ): Promise<string> => {
     const defaultOptions = {
-        width: 256,
-        margin: 2,
+        width: 400,
+        margin: 3,
         color: {
             dark: "#000000",
             light: "#FFFFFF"
         },
+        errorCorrectionLevel: "M" as const,
         ...options
     };
 
@@ -115,5 +116,7 @@ export const copyQRCodeToClipboard = async (
  * Get short URL from key
  */
 export const getShortUrl = (key: string, baseUrl: string = ""): string => {
-    return `${baseUrl}${key}`;
+    // Ensure baseUrl ends with / if it doesn't already
+    const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+    return `${normalizedBaseUrl}${key}`;
 };
