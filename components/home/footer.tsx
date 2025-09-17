@@ -23,9 +23,9 @@ const footerLinks = {
         { label: "Security", href: "/security" },
     ],
     social: [
-        { label: "Twitter", href: "https://twitter.com/{siteConfig.name}", icon: Twitter },
-        { label: "GitHub", href: "https://github.com/{siteConfig.name}", icon: Github },
-        { label: "Email", href: "mailto:hello@{siteConfig.name}.sh", icon: Mail },
+        { label: "Twitter", href: "https://twitter.com/surojitghosh_", icon: Twitter },
+        { label: "GitHub", href: "https://github.com/surojit-ghosh", icon: Github },
+        { label: "Email", href: "mailto:contact@surojit.in", icon: Mail },
     ],
 };
 
@@ -122,7 +122,7 @@ export function Footer() {
                         © 2024 {siteConfig.name}. All rights reserved.
                     </p>
                     <div className="text-muted-foreground flex items-center gap-4 text-sm">
-                        <span>Made with ❤️ for the web</span>
+                        <span>Made by Surojit</span>
                     </div>
                 </div>
             </div>

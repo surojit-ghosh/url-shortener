@@ -4,20 +4,19 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { siteConfig } from "@/config/site";
 
 const faqs = [
     {
-        question: "How does {siteConfig.name} work?",
-        answer: "{siteConfig.name} takes your long URLs and creates short, branded links that redirect to your original destination. Simply paste your URL, customize your short link, and share it anywhere. We track every click and provide detailed analytics.",
+        question: "How does Snippy work?",
+        answer: "Snippy takes your long URLs and creates short, branded links that redirect to your original destination. Simply paste your URL, customize your short link, and share it anywhere. We track every click and provide detailed analytics.",
     },
     {
-        question: "Is {siteConfig.name} free to use?",
-        answer: "Yes! {siteConfig.name} offers a generous free plan that includes up to 50 links, basic analytics, and QR code generation. For more advanced features like unlimited links, custom domains, and advanced analytics, we offer affordable premium plans.",
+        question: "Is Snippy free to use?",
+        answer: "Yes! Snippy offers a generous free plan that includes up to 50 links, basic analytics, and QR code generation. For more advanced features like unlimited links, custom domains, and advanced analytics, we offer affordable premium plans.",
     },
     {
         question: "Can I customize my short links?",
-        answer: "Absolutely! You can create custom short links with your own branded keywords. For example, instead of a random string, you can create {siteConfig.name}.sh/summer-sale. Premium users can also use their own custom domains.",
+        answer: "Absolutely! You can create custom short links with your own branded keywords. For example, instead of a random string, you can create Snippy.sh/summer-sale. Premium users can also use their own custom domains.",
     },
     {
         question: "How detailed are the analytics?",
@@ -32,7 +31,7 @@ const faqs = [
         answer: "Free accounts can create up to 50 links. Premium plans offer unlimited link creation. There are no limits on the number of clicks your links can receive on any plan.",
     },
     {
-        question: "Can I integrate {siteConfig.name} with my applications?",
+        question: "Can I integrate Snippy with my applications?",
         answer: "Yes! We provide a comprehensive REST API that allows you to integrate link shortening functionality directly into your applications. API access is available for premium users with detailed documentation and examples.",
     },
     {
@@ -50,8 +49,8 @@ export function FaqSection() {
                         Frequently Asked Questions
                     </h2>
                     <p className="text-muted-foreground mt-6 text-lg leading-8">
-                        Everything you need to know about {siteConfig.name}. Can&apos;t find what
-                        you&apos;re looking for? Feel free to reach out to our support team.
+                        Everything you need to know about Snippy. Can&apos;t find what you&apos;re
+                        looking for? Feel free to reach out to our support team.
                     </p>
                 </div>
 
