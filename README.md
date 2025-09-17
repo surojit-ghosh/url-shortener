@@ -44,8 +44,8 @@ A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Pr
     - [x] Search
     - [ ] Sorting
     - [x] Display all [ pagination or infinite scrolling ]
-    - [ ] Edit
-    - [ ] Delete
+    - [x] Edit
+    - [x] Delete
     - [ ] Display all time clicks
     - [x] QR Code
 - URL Redirect
