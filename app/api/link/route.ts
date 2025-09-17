@@ -89,22 +89,52 @@ export async function GET(request: NextRequest) {
     });
     const userId = session?.user?.id;
     const { searchParams } = new URL(request.url);
-    console.log("Search Params:", searchParams);
 
-    const links = await prisma.link.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        select: {
-            id: true,
-            key: true,
-            url: true,
-            createdAt: true,
-            expiresAt: true,
-            password: true, // Include to check if password exists
-            geoTargeting: true,
-            deviceTargeting: true,
-        }
-    });
+    // Parse pagination parameters
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
 
-    return NextResponse.json({ data: links });
+    // Calculate skip for pagination
+    const skip = (page - 1) * limit;
+
+    try {
+        // Get total count for pagination
+        const totalCount = await prisma.link.count({
+            where: { userId }
+        });
+
+        // Get paginated links
+        const links = await prisma.link.findMany({
+            where: { userId },
+            orderBy: { createdAt: "desc" },
+            skip: skip,
+            take: limit,
+            select: {
+                id: true,
+                key: true,
+                url: true,
+                createdAt: true,
+                expiresAt: true,
+                password: true, // Include to check if password exists
+                geoTargeting: true,
+                deviceTargeting: true,
+            }
+        });
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalCount / limit);
+
+        return NextResponse.json({
+            data: links,
+            page: page,
+            total: totalCount,
+            totalPages: totalPages
+        });
+    } catch (error) {
+        console.error("Error fetching links:", error);
+        return NextResponse.json(
+            { message: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
 }

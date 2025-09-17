@@ -1,6 +1,7 @@
 import { useInfiniteLinks } from "@/lib/queries/links";
 import { useEffect, useRef } from "react";
 import LinkCard from "./link-card";
+import { Button } from "@/components/ui/button";
 
 const AllLinks = () => {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
@@ -8,6 +9,16 @@ const AllLinks = () => {
 
     // Ref for the intersection observer element
     const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    // Debug logging
+    console.log("AllLinks Debug:", {
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        pagesCount: data?.pages?.length,
+        totalLinks: data?.pages.flatMap((page) => page.data).length,
+        lastPage: data?.pages?.[data.pages.length - 1],
+    });
 
     // Intersection observer to trigger loading more when scrolled to bottom
     useEffect(() => {
@@ -17,7 +28,13 @@ const AllLinks = () => {
         const observer = new IntersectionObserver(
             (entries) => {
                 const [entry] = entries;
+                console.log("Intersection Observer:", {
+                    isIntersecting: entry.isIntersecting,
+                    hasNextPage,
+                    isFetchingNextPage,
+                });
                 if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+                    console.log("Fetching next page...");
                     fetchNextPage();
                 }
             },
@@ -74,13 +91,23 @@ const AllLinks = () => {
             ))}
 
             {/* Invisible element to trigger intersection observer */}
-            <div ref={loadMoreRef} className="h-4">
+            <div ref={loadMoreRef} className="h-10 py-4">
                 {isFetchingNextPage && (
                     <div className="py-4 text-center">
                         <div className="inline-flex items-center">
                             <div className="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-b-2"></div>
                             Loading more links...
                         </div>
+                    </div>
+                )}
+                {hasNextPage && !isFetchingNextPage && (
+                    <div className="space-y-2 text-center">
+                        <div className="text-muted-foreground py-2 text-sm">
+                            Scroll down to load more...
+                        </div>
+                        <Button onClick={() => fetchNextPage()} variant="outline" size="sm">
+                            Load More Links
+                        </Button>
                     </div>
                 )}
             </div>

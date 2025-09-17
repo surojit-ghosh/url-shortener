@@ -12,6 +12,8 @@ export async function getLinks(params: IPaginationQuery): Promise<ILinkResponse>
         limit: params.limit.toString(),
     });
 
+    console.log("Fetching links with params:", params);
+
     const response = await fetch(`/api/link?${searchParams}`, {
         method: "GET",
         headers: {
@@ -20,10 +22,13 @@ export async function getLinks(params: IPaginationQuery): Promise<ILinkResponse>
     });
 
     if (!response.ok) {
+        console.error("Failed to fetch links:", response.status, response.statusText);
         throw new Error(`Failed to fetch links: ${response.statusText}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log("API Response:", data);
+    return data;
 }
 
 export async function createLink(linkData: ILinkForm): Promise<ILink> {
