@@ -12,6 +12,11 @@ export async function getLinks(params: IPaginationQuery): Promise<ILinkResponse>
         limit: params.limit.toString(),
     });
 
+    // Add search parameter if provided
+    if (params.search && params.search.trim() !== "") {
+        searchParams.append("search", params.search.trim());
+    }
+
     console.log("Fetching links with params:", params);
 
     const response = await fetch(`/api/link?${searchParams}`, {

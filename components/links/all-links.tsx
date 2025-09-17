@@ -3,9 +3,13 @@ import { useEffect, useRef } from "react";
 import LinkCard from "./link-card";
 import { Button } from "@/components/ui/button";
 
-const AllLinks = () => {
+interface AllLinksProps {
+    searchTerm: string;
+}
+
+const AllLinks = ({ searchTerm }: AllLinksProps) => {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
-        useInfiniteLinks(10);
+        useInfiniteLinks(10, searchTerm);
 
     // Ref for the intersection observer element
     const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -122,7 +126,18 @@ const AllLinks = () => {
             {/* Empty state */}
             {allLinks.length === 0 && !isLoading && (
                 <div className="py-8 text-center">
-                    <p className="text-muted-foreground">No links found. Create your first link!</p>
+                    {searchTerm ? (
+                        <div className="space-y-2">
+                            <p className="text-muted-foreground">
+                                No links found matching &ldquo;{searchTerm}&rdquo;
+                            </p>
+                            <p className="text-muted-foreground text-sm">
+                                Try adjusting your search or create a new link
+                            </p>
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground">No links found. Create your first link!</p>
+                    )}
                 </div>
             )}
         </div>

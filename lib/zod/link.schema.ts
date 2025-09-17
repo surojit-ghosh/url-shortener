@@ -91,6 +91,7 @@ export type IPasswordVerification = z.infer<typeof passwordVerificationSchema>;
 export type IPaginationQuery = {
     page: number;
     limit: number;
+    search?: string;
 };
 
 export const paginatedLinksSchema = z.object({

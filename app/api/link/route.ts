@@ -99,19 +99,31 @@ export async function GET(request: NextRequest) {
     // Parse pagination parameters
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const search = searchParams.get("search") || "";
 
     // Calculate skip for pagination
     const skip = (page - 1) * limit;
 
+    // Build where clause for search
+    const whereClause = {
+        userId,
+        ...(search && {
+            OR: [
+                { key: { contains: search, mode: "insensitive" as const } },
+                { url: { contains: search, mode: "insensitive" as const } }
+            ]
+        })
+    };
+
     try {
         // Get total count for pagination
         const totalCount = await prisma.link.count({
-            where: { userId }
+            where: whereClause
         });
 
         // Get paginated links
         const links = await prisma.link.findMany({
-            where: { userId },
+            where: whereClause,
             orderBy: { createdAt: "desc" },
             skip: skip,
             take: limit,

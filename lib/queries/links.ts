@@ -4,17 +4,17 @@ import { getLinks, createLink } from "../api/link";
 
 export const useLinks = (params: IPaginationQuery) => {
     return useQuery<ILinkResponse>({
-        queryKey: ["links", params.page, params.limit],
+        queryKey: ["links", params.page, params.limit, params.search],
         queryFn: () => getLinks(params),
         staleTime: 60_000,
     });
 };
 
 // Infinite query hook for paginated links with infinite scroll
-export const useInfiniteLinks = (limit: number = 10) => {
+export const useInfiniteLinks = (limit: number = 10, search?: string) => {
     return useInfiniteQuery({
-        queryKey: ["links", "infinite"],
-        queryFn: ({ pageParam = 1 }) => getLinks({ page: pageParam, limit }),
+        queryKey: ["links", "infinite", search],
+        queryFn: ({ pageParam = 1 }) => getLinks({ page: pageParam, limit, search }),
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
             // If current page is less than total pages, return next page

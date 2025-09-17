@@ -39,16 +39,15 @@ A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Pr
         - [x] Password
         - [x] Geo Targeting (country-based redirect)
         - [x] Device Targeting (OS-based redirect)
-        - [ ] Metadata (title, description, image)
+        - [x] Metadata (title, description, image)
         - [x] QR code generation
-    - [ ] Search
+    - [x] Search
     - [ ] Sorting
-    - [ ] Display all [ pagination or infinite scrolling ]
+    - [x] Display all [ pagination or infinite scrolling ]
     - [ ] Edit
     - [ ] Delete
     - [ ] Display all time clicks
-    - [ ] QR Code
-    - [ ] Folder
+    - [x] QR Code
 - URL Redirect
     - [ ] Record analytics record
     - [ ] redirect
