@@ -216,11 +216,15 @@ export default function AdvancedTargetingModal({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" type="button" className="flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    type="button"
+                    className="flex w-full items-center justify-start gap-2"
+                >
                     <Target size={16} />
-                    Advanced Targeting
+                    <span className="flex-1 text-start">Advanced Targeting</span>
                     {totalRules > 0 && (
-                        <Badge variant="secondary" className="ml-1 h-5 text-xs">
+                        <Badge variant="secondary" className="text-xs">
                             {totalRules}
                         </Badge>
                     )}

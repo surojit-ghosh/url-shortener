@@ -14,6 +14,36 @@ export const deviceTargetingSchema = z.record(
     z.string().url("Must be a valid URL")
 ).optional();
 
+// Schema for metadata
+export const metadataSchema = z.object({
+    title: z.string().optional().refine(
+        (title) => {
+            if (!title || title === "") return true;
+            return title.length <= 100;
+        },
+        { message: "Title must be at most 100 characters" }
+    ),
+    description: z.string().optional().refine(
+        (description) => {
+            if (!description || description === "") return true;
+            return description.length <= 300;
+        },
+        { message: "Description must be at most 300 characters" }
+    ),
+    image: z.string().optional().refine(
+        (image) => {
+            if (!image || image === "") return true;
+            try {
+                new URL(image);
+                return true;
+            } catch {
+                return false;
+            }
+        },
+        { message: "Image must be a valid URL" }
+    )
+}).optional();
+
 export const linkSchema = z.object({
     url: z.string().url({ message: "Invalid URL" }),
     key: z.string({ required_error: "Slug is required" })
@@ -32,6 +62,7 @@ export const linkSchema = z.object({
     ),
     geoTargeting: geoTargetingSchema,
     deviceTargeting: deviceTargetingSchema,
+    metadata: metadataSchema,
     expiresAt: z.string().optional().refine(
         (date) => {
             if (!date || date === "") return true; // Allow empty string or undefined

@@ -12,10 +12,11 @@ model Link {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
   url             String
   key             String    @unique
-  password        String? // Optional password protection (hashed)
-  geoTargeting    Json? // Optional geo targeting rules: { "US": "https://us.example.com", "GB": "https://uk.example.com" }
-  deviceTargeting Json? // Optional device targeting rules: { "windows": "https://windows.example.com", "android": "https://android.example.com" }
-  expiresAt       DateTime? // Optional expiration date
+  password        String?
+  geoTargeting    Json?
+  deviceTargeting Json?
+  metadata        Json?
+  expiresAt       DateTime?
   createdAt       DateTime  @default(now())
   userId          String
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
             password?: string;
             geoTargeting?: Record<string, string>;
             deviceTargeting?: Record<string, string>;
+            metadata?: Record<string, string>;
             expiresAt?: Date;
         } = {
             key: data.key,
@@ -56,6 +57,11 @@ export async function POST(request: NextRequest) {
 
         if (data.deviceTargeting && Object.keys(data.deviceTargeting).length > 0) {
             linkData.deviceTargeting = data.deviceTargeting;
+        }
+
+        // Add metadata if provided
+        if (data.metadata && (data.metadata.title || data.metadata.description || data.metadata.image)) {
+            linkData.metadata = data.metadata as Record<string, string>;
         }
 
         // Add expiresAt if provided
@@ -118,6 +124,7 @@ export async function GET(request: NextRequest) {
                 password: true, // Include to check if password exists
                 geoTargeting: true,
                 deviceTargeting: true,
+                metadata: true,
             }
         });
 
