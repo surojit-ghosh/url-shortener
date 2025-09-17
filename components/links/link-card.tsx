@@ -1,14 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import {
-    Calendar,
-    Check,
-    Clipboard,
-    CornerDownRight,
-    AlertTriangle,
-    EllipsisVertical,
-} from "lucide-react";
+import { Calendar, Check, Clipboard, CornerDownRight, EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -19,8 +12,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { QRCodeModal } from "../qr-code-modal";
+import { toast } from "sonner";
 
 type LinkCardProps = {
     url: string;
@@ -29,14 +23,14 @@ type LinkCardProps = {
     expiresAt?: string | null;
 };
 
-const LinkCard = ({ url, shortKey, createdAt, expiresAt }: LinkCardProps) => {
+const LinkCard = ({ url, shortKey, createdAt }: LinkCardProps) => {
     const [isCopied, setIsCopied] = useState(false);
 
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(`${siteConfig.url}${shortKey}`);
             setIsCopied(true);
-
+            toast.success("Link copied to clipboard!");
             // Reset copied state after 3 seconds
             setTimeout(() => {
                 setIsCopied(false);
@@ -46,8 +40,6 @@ const LinkCard = ({ url, shortKey, createdAt, expiresAt }: LinkCardProps) => {
         }
     };
 
-    // Check if link is expired
-    const isExpired = expiresAt ? new Date() > new Date(expiresAt) : false;
     return (
         <div className="border-muted flex items-center gap-4 border p-4">
             <div className="bg-muted rounded-full p-2">
@@ -65,17 +57,19 @@ const LinkCard = ({ url, shortKey, createdAt, expiresAt }: LinkCardProps) => {
                         {siteConfig.url}
                         {shortKey}
                     </a>
-                    <button onClick={handleCopy} className="hover:bg-muted rounded-full p-2">
-                        {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
-                    </button>
-
-                    {/* Expiration Status - Only show if expired */}
-                    {isExpired && (
-                        <Badge variant="destructive" className="text-xs">
-                            <AlertTriangle size={12} className="mr-1" />
-                            Expired
-                        </Badge>
-                    )}
+                    <div className="flex items-center justify-center gap-1">
+                        <button
+                            onClick={handleCopy}
+                            className="hover:bg-muted cursor-pointer rounded-full p-2"
+                        >
+                            {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
+                        </button>
+                        <QRCodeModal
+                            shortKey={shortKey}
+                            originalUrl={url}
+                            baseUrl={`https://${siteConfig.url}`}
+                        />
+                    </div>
                 </div>
 
                 <div className="text-muted-foreground flex items-center gap-1 text-xs">

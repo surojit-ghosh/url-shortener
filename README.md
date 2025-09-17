@@ -40,7 +40,7 @@ A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Pr
         - [x] Geo Targeting (country-based redirect)
         - [x] Device Targeting (OS-based redirect)
         - [ ] Metadata (title, description, image)
-        - [ ] QR code generation
+        - [x] QR code generation
     - [ ] Search
     - [ ] Sorting
     - [ ] Display all [ pagination or infinite scrolling ]

@@ -70,7 +70,6 @@ const AllLinks = () => {
                     shortKey={link.key}
                     url={link.url}
                     createdAt={link.createdAt as string}
-                    expiresAt={link.expiresAt}
                 />
             ))}
 
