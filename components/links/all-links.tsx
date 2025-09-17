@@ -14,16 +14,6 @@ const AllLinks = ({ searchTerm }: AllLinksProps) => {
     // Ref for the intersection observer element
     const loadMoreRef = useRef<HTMLDivElement>(null);
 
-    // Debug logging
-    console.log("AllLinks Debug:", {
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-        pagesCount: data?.pages?.length,
-        totalLinks: data?.pages.flatMap((page) => page.data).length,
-        lastPage: data?.pages?.[data.pages.length - 1],
-    });
-
     // Intersection observer to trigger loading more when scrolled to bottom
     useEffect(() => {
         const element = loadMoreRef.current;
@@ -88,9 +78,15 @@ const AllLinks = ({ searchTerm }: AllLinksProps) => {
             {allLinks.map((link) => (
                 <LinkCard
                     key={link.key}
+                    id={link.id!}
                     shortKey={link.key}
                     url={link.url}
                     createdAt={link.createdAt as string}
+                    expiresAt={link.expiresAt as string | null}
+                    password={link.password as string | null}
+                    geoTargeting={link.geoTargeting as Record<string, string> | null}
+                    deviceTargeting={link.deviceTargeting as Record<string, string> | null}
+                    metadata={link.metadata as Record<string, string> | null}
                 />
             ))}
 
@@ -136,7 +132,9 @@ const AllLinks = ({ searchTerm }: AllLinksProps) => {
                             </p>
                         </div>
                     ) : (
-                        <p className="text-muted-foreground">No links found. Create your first link!</p>
+                        <p className="text-muted-foreground">
+                            No links found. Create your first link!
+                        </p>
                     )}
                 </div>
             )}

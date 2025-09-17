@@ -58,3 +58,40 @@ export async function createLink(linkData: ILinkForm): Promise<ILink> {
 
     return response.json();
 }
+
+export async function updateLink(id: string, linkData: Partial<ILinkForm>): Promise<ILink> {
+    const response = await fetch("/api/link", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, ...linkData }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        const error: ApiError = new Error(errorData.message || `Failed to update link: ${response.statusText}`);
+        error.fieldErrors = errorData.fieldErrors;
+        error.status = response.status;
+        throw error;
+    }
+
+    return response.json();
+}
+
+export async function deleteLink(id: string): Promise<void> {
+    const response = await fetch("/api/link", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        const error: ApiError = new Error(errorData.message || `Failed to delete link: ${response.statusText}`);
+        error.status = response.status;
+        throw error;
+    }
+}

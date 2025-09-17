@@ -9,14 +9,29 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useTransition, useState } from "react";
 import { checkIfKeyExists, genereateRandomKey, getDefaultValues } from "@/lib/actions/link.action";
-import { useCreateLink } from "@/lib/queries/links";
+import { useCreateLink, useUpdateLink } from "@/lib/queries/links";
 import { useDebounceValue } from "usehooks-ts";
 import { toast } from "sonner";
 import AdvancedTargetingModal from "@/components/advanced-targeting-modal";
 import PasswordModal from "@/components/password-modal";
 import MetadataModal from "@/components/metadata-modal";
 
-const LinkForm = ({ close }: { close: () => void }) => {
+interface LinkFormProps {
+    close: () => void;
+    editMode?: boolean;
+    editData?: {
+        id: string;
+        url: string;
+        key: string;
+        password?: string | null;
+        geoTargeting?: Record<string, string> | null;
+        deviceTargeting?: Record<string, string> | null;
+        metadata?: Record<string, string> | null;
+        expiresAt?: string | null;
+    };
+}
+
+const LinkForm = ({ close, editMode = false, editData }: LinkFormProps) => {
     const [isPending, startTransition] = useTransition();
     const [defaultValues, setDefaultValues] = useState<ILinkForm | undefined>(undefined);
     const [geoTargeting, setGeoTargeting] = useState<Record<string, string> | undefined>();
@@ -26,8 +41,9 @@ const LinkForm = ({ close }: { close: () => void }) => {
         { title?: string; description?: string; image?: string } | undefined
     >();
 
-    // TanStack Query mutation for creating links
+    // TanStack Query mutations for creating and updating links
     const createLinkMutation = useCreateLink();
+    const updateLinkMutation = useUpdateLink();
 
     const {
         register,
@@ -52,7 +68,30 @@ const LinkForm = ({ close }: { close: () => void }) => {
     useEffect(() => {
         const loadDefaultValues = async () => {
             try {
-                const defaultVals = await getDefaultValues();
+                let defaultVals: ILinkForm;
+
+                if (editMode && editData) {
+                    // Use edit data for editing
+                    defaultVals = {
+                        url: editData.url,
+                        key: editData.key,
+                        password: editData.password || "",
+                        geoTargeting: editData.geoTargeting || undefined,
+                        deviceTargeting: editData.deviceTargeting || undefined,
+                        metadata: editData.metadata || undefined,
+                        expiresAt: editData.expiresAt || undefined,
+                    };
+
+                    // Set additional state for edit mode
+                    setGeoTargeting(editData.geoTargeting || undefined);
+                    setDeviceTargeting(editData.deviceTargeting || undefined);
+                    setPassword(editData.password || undefined);
+                    setMetadata(editData.metadata || undefined);
+                } else {
+                    // Load default values for create mode
+                    defaultVals = await getDefaultValues();
+                }
+
                 setDefaultValues(defaultVals);
                 reset(defaultVals);
             } catch (error) {
@@ -65,7 +104,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
         };
 
         loadDefaultValues();
-    }, [reset, setDefaultValues]);
+    }, [reset, setDefaultValues, editMode, editData]);
 
     const onSubmit = async (formData: ILinkForm) => {
         try {
@@ -78,7 +117,18 @@ const LinkForm = ({ close }: { close: () => void }) => {
                 metadata,
             };
 
-            await createLinkMutation.mutateAsync(submitData);
+            if (editMode && editData) {
+                // Update existing link
+                await updateLinkMutation.mutateAsync({
+                    id: editData.id,
+                    ...submitData,
+                });
+                toast.success("Link updated successfully!");
+            } else {
+                // Create new link
+                await createLinkMutation.mutateAsync(submitData);
+                toast.success("Link created successfully!");
+            }
 
             // Reset form and close modal
             reset();
@@ -86,7 +136,6 @@ const LinkForm = ({ close }: { close: () => void }) => {
             setDeviceTargeting(undefined);
             setPassword(undefined);
             setMetadata(undefined);
-            toast.success("Link created successfully!");
             close();
             setDebouncedKey("");
         } catch (error: unknown) {
@@ -123,7 +172,8 @@ const LinkForm = ({ close }: { close: () => void }) => {
 
     useEffect(() => {
         const validateKey = async () => {
-            if (!debouncedKey) return;
+            // Skip validation in edit mode or if no key
+            if (!debouncedKey || editMode) return;
 
             const isExists = await checkIfKeyExists(debouncedKey);
 
@@ -139,7 +189,7 @@ const LinkForm = ({ close }: { close: () => void }) => {
         };
 
         validateKey();
-    }, [debouncedKey, setError, clearErrors, trigger]);
+    }, [debouncedKey, setError, clearErrors, trigger, editMode]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -150,6 +200,8 @@ const LinkForm = ({ close }: { close: () => void }) => {
                     id="url"
                     type="url"
                     placeholder="https://example.com/your-long-url"
+                    disabled={editMode}
+                    className={editMode ? "cursor-not-allowed opacity-50" : ""}
                 />
                 {errors.url && <p className="text-sm text-red-500">{errors.url.message}</p>}
             </div>
@@ -157,22 +209,30 @@ const LinkForm = ({ close }: { close: () => void }) => {
             <div className="space-y-2">
                 <div className="flex items-center">
                     <Label className="flex-1">Short Link</Label>
-                    <Button
-                        disabled={isPending}
-                        onClick={handleGenerateKey}
-                        variant="outline"
-                        size={"icon"}
-                        className="h-[26px]"
-                    >
-                        <Shuffle size={16} />
-                    </Button>
+                    {!editMode && (
+                        <Button
+                            disabled={isPending}
+                            onClick={handleGenerateKey}
+                            variant="outline"
+                            size={"icon"}
+                            className="h-[26px]"
+                        >
+                            <Shuffle size={16} />
+                        </Button>
+                    )}
                 </div>
                 <div className="flex gap-2">
                     <div className="bg-muted border-input flex items-center rounded-md border px-3 py-1 text-sm">
                         {siteConfig.url}
                     </div>
                     <div className="relative flex-1">
-                        <Input id="key" placeholder="custom-key (optional)" {...register("key")} />
+                        <Input
+                            id="key"
+                            placeholder="custom-key (optional)"
+                            {...register("key")}
+                            disabled={editMode}
+                            className={editMode ? "cursor-not-allowed opacity-50" : ""}
+                        />
                     </div>
                 </div>
                 {errors.key && <p className="text-sm text-red-500">{errors.key.message}</p>}
@@ -222,10 +282,21 @@ const LinkForm = ({ close }: { close: () => void }) => {
             <div className="border-t pt-4">
                 <Button
                     type="submit"
-                    disabled={isSubmitting || !isValid || createLinkMutation.isPending}
+                    disabled={
+                        isSubmitting ||
+                        !isValid ||
+                        createLinkMutation.isPending ||
+                        updateLinkMutation.isPending
+                    }
                     className="float-right"
                 >
-                    {createLinkMutation.isPending ? "Creating..." : "Create Link"}
+                    {createLinkMutation.isPending || updateLinkMutation.isPending
+                        ? editMode
+                            ? "Updating..."
+                            : "Creating..."
+                        : editMode
+                          ? "Update Link"
+                          : "Create Link"}
                 </Button>
             </div>
         </form>

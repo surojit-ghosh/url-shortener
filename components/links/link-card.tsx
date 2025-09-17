@@ -1,7 +1,14 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import { Calendar, Check, Clipboard, CornerDownRight, EllipsisVertical } from "lucide-react";
+import {
+    Calendar,
+    Check,
+    Clipboard,
+    CornerDownRight,
+    EllipsisVertical,
+    Trash2,
+} from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -14,17 +21,35 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { QRCodeModal } from "../qr-code-modal";
+import EditLinkModal from "./edit-link-modal";
+import { useDeleteLink } from "@/lib/queries/links";
 import { toast } from "sonner";
 
 type LinkCardProps = {
+    id: string;
     url: string;
     shortKey: string;
     createdAt: string;
     expiresAt?: string | null;
+    password?: string | null;
+    geoTargeting?: Record<string, string> | null;
+    deviceTargeting?: Record<string, string> | null;
+    metadata?: Record<string, string> | null;
 };
 
-const LinkCard = ({ url, shortKey, createdAt }: LinkCardProps) => {
+const LinkCard = ({
+    id,
+    url,
+    shortKey,
+    createdAt,
+    expiresAt,
+    password,
+    geoTargeting,
+    deviceTargeting,
+    metadata,
+}: LinkCardProps) => {
     const [isCopied, setIsCopied] = useState(false);
+    const deleteLink = useDeleteLink();
 
     const handleCopy = async () => {
         try {
@@ -38,6 +63,33 @@ const LinkCard = ({ url, shortKey, createdAt }: LinkCardProps) => {
         } catch (err) {
             console.error("Failed to copy text:", err);
         }
+    };
+
+    const handleDelete = async () => {
+        if (
+            window.confirm(
+                `Are you sure you want to delete "${siteConfig.url}${shortKey}"? This action cannot be undone.`
+            )
+        ) {
+            try {
+                await deleteLink.mutateAsync(id);
+                toast.success("Link deleted successfully!");
+            } catch (error) {
+                console.error("Failed to delete link:", error);
+                toast.error("Failed to delete link. Please try again.");
+            }
+        }
+    };
+
+    const linkData = {
+        id,
+        url,
+        key: shortKey,
+        password,
+        geoTargeting,
+        deviceTargeting,
+        metadata,
+        expiresAt,
     };
 
     return (
@@ -95,13 +147,20 @@ const LinkCard = ({ url, shortKey, createdAt }: LinkCardProps) => {
                             <EllipsisVertical />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Billing</DropdownMenuItem>
-                        <DropdownMenuItem>Team</DropdownMenuItem>
-                        <DropdownMenuItem>Subscription</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <EditLinkModal linkData={linkData} />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            className="text-red-600 focus:text-red-600"
+                            onClick={handleDelete}
+                            disabled={deleteLink.isPending}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

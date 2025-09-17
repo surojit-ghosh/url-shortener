@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { IPaginationQuery, ILinkResponse, ILinkForm, ILink } from "../zod/link.schema";
-import { getLinks, createLink } from "../api/link";
+import { getLinks, createLink, updateLink, deleteLink } from "../api/link";
 
 export const useLinks = (params: IPaginationQuery) => {
     return useQuery<ILinkResponse>({
@@ -37,14 +37,63 @@ export const useCreateLink = () => {
             return await createLink(linkData);
         },
         onSuccess: () => {
-            // Invalidate and refetch links queries
-            queryClient.invalidateQueries({ queryKey: ["links"] });
+            // Invalidate and refetch all links queries (including different search terms)
+            queryClient.invalidateQueries({
+                queryKey: ["links"],
+                exact: false // This will invalidate all queries that start with ["links"]
+            });
 
-            // Optionally, you can also reset the infinite query to start from page 1
-            queryClient.resetQueries({ queryKey: ["links", "infinite"] });
+            // Reset the infinite query to start from page 1 to show the new link
+            queryClient.resetQueries({
+                queryKey: ["links", "infinite"],
+                exact: false // This will reset all infinite queries regardless of search term
+            });
         },
         onError: (error) => {
             console.error("Failed to create link:", error);
+        },
+    });
+};
+
+// Mutation hook for updating links
+export const useUpdateLink = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ id, ...linkData }: { id: string } & Partial<ILinkForm>): Promise<ILink> => {
+            return await updateLink(id, linkData);
+        },
+        onSuccess: () => {
+            // For update operations, it's safer to just invalidate and refetch
+            // This ensures data consistency and avoids cache update errors
+            queryClient.invalidateQueries({
+                queryKey: ["links"],
+                exact: false // This will invalidate all queries that start with ["links"]
+            });
+        },
+        onError: (error) => {
+            console.error("Failed to update link:", error);
+        },
+    });
+};
+
+// Mutation hook for deleting links
+export const useDeleteLink = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string): Promise<void> => {
+            return await deleteLink(id);
+        },
+        onSuccess: () => {
+            // For delete operations, invalidate all queries to ensure consistency
+            queryClient.invalidateQueries({
+                queryKey: ["links"],
+                exact: false // This will invalidate all queries that start with ["links"]
+            });
+        },
+        onError: (error) => {
+            console.error("Failed to delete link:", error);
         },
     });
 };

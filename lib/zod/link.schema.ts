@@ -45,6 +45,7 @@ export const metadataSchema = z.object({
 }).optional();
 
 export const linkSchema = z.object({
+    id: z.string().optional(), // Optional for forms, present in API responses
     url: z.string().url({ message: "Invalid URL" }),
     key: z.string({ required_error: "Slug is required" })
         .min(1, "Slug is required")
@@ -75,8 +76,8 @@ export const linkSchema = z.object({
     updatedAt: z.string().optional(),  // Optional for form input, required for DB
 });
 
-// For form input (excludes auto-generated timestamp fields)
-export const linkFormSchema = linkSchema.omit({ createdAt: true, updatedAt: true });
+// For form input (excludes auto-generated fields)
+export const linkFormSchema = linkSchema.omit({ id: true, createdAt: true, updatedAt: true });
 
 export type ILink = z.infer<typeof linkSchema>;
 export type ILinkForm = z.infer<typeof linkFormSchema>;

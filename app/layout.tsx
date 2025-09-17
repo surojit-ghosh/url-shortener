@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${poppins.variable} antialiased`}>
+            <body className={`${poppins.variable} overflow-x-hidden antialiased`}>
                 <Providers>
                     <main>{children}</main>
                     <Toaster position="top-right" />
