@@ -1,4 +1,8 @@
 import { notFound, redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { Metadata } from "next";
+import Link from "next/link";
+
 import { getLinkByKey } from "@/lib/utils/key";
 import {
     getClientIP,
@@ -6,18 +10,19 @@ import {
     getDeviceFromUserAgent,
     findTargetedURL,
 } from "@/lib/utils/targeting";
-import Link from "next/link";
+import { trackClickAction } from "@/lib/actions/analytics.action";
 import PasswordVerification from "@/components/password-verification";
-import { headers } from "next/headers";
-import { Metadata } from "next";
 
 interface PageProps {
-    params: Promise<{
-        key: string;
-    }>;
+    params: Promise<{ key: string }>;
 }
 
-// Generate dynamic metadata for SEO and social sharing
+interface LinkMetadata {
+    title?: string;
+    description?: string;
+    image?: string;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { key } = await params;
 
@@ -38,25 +43,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             };
         }
 
-        // Use custom metadata if available, otherwise generate defaults
-        const metadata = result.link.metadata as {
-            title?: string;
-            description?: string;
-            image?: string;
-        } | null;
-
+        const metadata = result.link.metadata as LinkMetadata | null;
         const title = metadata?.title || `Redirecting to ${new URL(result.link.url).hostname}`;
         const description =
             metadata?.description || `This link will redirect you to ${result.link.url}`;
-        const image = metadata?.image;
-
         const metadataObj: Metadata = {
             title,
             description,
             openGraph: {
                 title,
                 description,
-                url: `${process.env.NEXT_PUBLIC_APP_URL || "https://yourdomain.com"}/${key}`,
+                url: `${process.env.NEXT_PUBLIC_APP_URL || "https://snippy.surojit.in"}/${key}`,
                 type: "website",
             },
             twitter: {
@@ -66,10 +63,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             },
         };
 
-        // Add image to Open Graph and Twitter if available
-        if (image) {
-            metadataObj.openGraph!.images = [{ url: image }];
-            metadataObj.twitter!.images = [image];
+        if (metadata?.image) {
+            metadataObj.openGraph!.images = [{ url: metadata.image }];
+            metadataObj.twitter!.images = [metadata.image];
         }
 
         return metadataObj;
@@ -85,12 +81,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function RedirectPage({ params }: PageProps) {
     const { key } = await params;
 
-    if (!key) {
-        notFound();
-    }
+    if (!key) notFound();
 
     let result;
-
     try {
         result = await getLinkByKey(key);
     } catch (error) {
@@ -98,9 +91,7 @@ export default async function RedirectPage({ params }: PageProps) {
         notFound();
     }
 
-    if (!result) {
-        notFound();
-    }
+    if (!result) notFound();
 
     if (result.expired) {
         return (
@@ -139,25 +130,20 @@ export default async function RedirectPage({ params }: PageProps) {
         );
     }
 
-    if (!result.link) {
-        notFound();
-    }
+    if (!result.link) notFound();
 
-    // Check if the link is password protected
     if (result.link.password) {
         return <PasswordVerification linkKey={key} />;
     }
 
-    // Get targeting information
     const headersList = await headers();
     const userAgent = headersList.get("user-agent") || "";
+    const referer = headersList.get("referer") || "";
     const clientIP = getClientIP(headersList);
 
-    // Determine country and device
     const countryCode = await getCountryFromIP(clientIP);
     const deviceType = getDeviceFromUserAgent(userAgent);
 
-    // Find the appropriate URL based on targeting rules
     const targetUrl = findTargetedURL(
         result.link.url,
         result.link.geoTargeting as Record<string, string> | null,
@@ -166,34 +152,18 @@ export default async function RedirectPage({ params }: PageProps) {
         deviceType
     );
 
-    // Get metadata for potential use (already handled in generateMetadata)
-    const metadata = result.link.metadata as {
-        title?: string;
-        description?: string;
-        image?: string;
-    } | null;
-
-    // Log comprehensive targeting and metadata info for debugging
-    console.log("Link redirect info:", {
-        key,
-        originalUrl: result.link.url,
+    // Track analytics using server action (no blocking, runs in background)
+    trackClickAction({
+        linkKey: key,
         targetUrl,
-        targeting: {
-            ip: clientIP,
-            country: countryCode,
-            device: deviceType,
-            geoRules: result.link.geoTargeting,
-            deviceRules: result.link.deviceTargeting,
-        },
-        metadata: metadata,
-        hasPassword: !!result.link.password,
-        expiresAt: result.link.expiresAt,
-        redirectTimestamp: new Date().toISOString(),
+        clientIP,
+        userAgent,
+        countryCode: countryCode || undefined,
+        deviceType: deviceType || undefined,
+        referer,
+    }).catch((error) => {
+        console.error("Analytics tracking failed:", error);
     });
 
-    // TODO: Add analytics tracking here if needed
-    // trackRedirect(key, targetUrl, countryCode, deviceType);
-
-    // Redirect to the targeted URL
     redirect(targetUrl);
 }

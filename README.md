@@ -62,8 +62,8 @@ A fast, minimal, and modern URL shortener built with Next.js, TypeScript, and Pr
     - [ ] Per link analytics + All links analytics
     - [ ] Filter for all params
 - Landing Page
-    - [ ] Navbar
-    - [ ] Hero section
-    - [ ] Features section
-    - [ ] Frequently asked questions
-    - [ ] Footer
+    - [x] Navbar
+    - [x] Hero section
+    - [x] Features section
+    - [x] Frequently asked questions
+    - [x] Footer

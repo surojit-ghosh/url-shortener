@@ -20,8 +20,24 @@ model Link {
   createdAt       DateTime  @default(now())
   userId          String
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clicks          Click[]
 
   @@map("links")
+}
+
+model Click {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  linkId      String   @db.ObjectId
+  link        Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  targetUrl   String
+  clientIP    String?
+  userAgent   String?
+  countryCode String?
+  deviceType  String?
+  referer     String?
+  clickedAt   DateTime @default(now())
+
+  @@map("clicks")
 }
 
 model User {
