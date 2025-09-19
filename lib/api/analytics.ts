@@ -34,6 +34,30 @@ interface AnalyticsResponse {
     }>;
 }
 
+interface DashboardAnalytics {
+    overview: {
+        totalLinks: number;
+        clicksToday: number;
+        totalClicks: number;
+        avgClicksPerLink: number;
+    };
+    charts: {
+        last7Days: Array<{
+            date: string;
+            day: string;
+            clicks: number;
+        }>;
+    };
+    topLinks: Array<{
+        id: string;
+        key: string;
+        url: string;
+        createdAt: string;
+        clicks: number;
+        shortUrl: string;
+    }>;
+}
+
 export async function trackClick(data: AnalyticsData): Promise<void> {
     try {
         const response = await fetch("/api/analytics/track", {
@@ -62,6 +86,21 @@ export async function getAnalytics(linkKey: string): Promise<AnalyticsResponse> 
 
     if (!response.ok) {
         throw new Error(`Failed to fetch analytics: ${response.statusText}`);
+    }
+
+    return response.json();
+}
+
+export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
+    const response = await fetch("/api/analytics/dashboard", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch dashboard analytics: ${response.statusText}`);
     }
 
     return response.json();

@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { trackClick, getAnalytics } from "../api/analytics";
+import { trackClick, getAnalytics, getDashboardAnalytics } from "../api/analytics";
 import { trackClickAction } from "../actions/analytics.action";
 
 interface AnalyticsData {
@@ -18,6 +18,14 @@ export const useAnalytics = (linkKey: string) => {
         queryFn: () => getAnalytics(linkKey),
         staleTime: 30_000,
         enabled: !!linkKey,
+    });
+};
+
+export const useDashboardAnalytics = () => {
+    return useQuery({
+        queryKey: ["analytics", "dashboard"],
+        queryFn: getDashboardAnalytics,
+        staleTime: 60_000,
     });
 };
 
