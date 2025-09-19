@@ -93,6 +93,9 @@ const LinkCard = ({
                     alt="favicon"
                     height={20}
                     width={20}
+                    onError={(e) => {
+                        e.currentTarget.src = "/favicon.ico";
+                    }}
                 />
             </div>
 
