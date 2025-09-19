@@ -55,7 +55,7 @@ export default function PasswordVerification({ linkKey }: PasswordVerificationPr
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="bg-background flex min-h-screen items-center justify-center p-4">
             <Card className="w-full max-w-md shadow-lg">
                 <CardHeader className="space-y-2 text-center">
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
