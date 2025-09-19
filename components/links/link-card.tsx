@@ -90,7 +90,11 @@ const LinkCard = ({
         <div className="border-muted flex items-center gap-4 border p-4">
             <div className="bg-muted rounded-full p-2">
                 <Image
-                    src={faviconError ? "/favicon.ico" : `https://www.google.com/s2/favicons?sz=64&domain_url=${new URL(url).origin}`}
+                    src={
+                        faviconError
+                            ? "/favicon.ico"
+                            : `https://www.google.com/s2/favicons?sz=64&domain_url=${new URL(url).origin}`
+                    }
                     alt="favicon"
                     height={20}
                     width={20}
