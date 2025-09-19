@@ -17,8 +17,6 @@ export async function getLinks(params: IPaginationQuery): Promise<ILinkResponse>
         searchParams.append("search", params.search.trim());
     }
 
-    console.log("Fetching links with params:", params);
-
     const response = await fetch(`/api/link?${searchParams}`, {
         method: "GET",
         headers: {
@@ -32,7 +30,7 @@ export async function getLinks(params: IPaginationQuery): Promise<ILinkResponse>
     }
 
     const data = await response.json();
-    console.log("API Response:", data);
+
     return data;
 }
 

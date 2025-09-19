@@ -22,11 +22,6 @@ const AllLinks = ({ searchTerm }: AllLinksProps) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 const [entry] = entries;
-                console.log("Intersection Observer:", {
-                    isIntersecting: entry.isIntersecting,
-                    hasNextPage,
-                    isFetchingNextPage,
-                });
                 if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
                     console.log("Fetching next page...");
                     fetchNextPage();
