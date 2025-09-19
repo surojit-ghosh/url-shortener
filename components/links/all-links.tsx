@@ -81,7 +81,7 @@ const AllLinks = ({ searchTerm }: AllLinksProps) => {
                     id={link.id!}
                     shortKey={link.key}
                     url={link.url}
-                    createdAt={link.createdAt as string}
+                    clicks={link._count?.clicks || 0}
                     expiresAt={link.expiresAt as string | null}
                     password={link.password as string | null}
                     geoTargeting={link.geoTargeting as Record<string, string> | null}

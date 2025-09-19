@@ -1,14 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import {
-    Calendar,
-    Check,
-    Clipboard,
-    CornerDownRight,
-    EllipsisVertical,
-    Trash2,
-} from "lucide-react";
+import { Check, Clipboard, CornerDownRight, EllipsisVertical, Eye, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -29,7 +22,7 @@ type LinkCardProps = {
     id: string;
     url: string;
     shortKey: string;
-    createdAt: string;
+    clicks?: number;
     expiresAt?: string | null;
     password?: string | null;
     geoTargeting?: Record<string, string> | null;
@@ -41,7 +34,7 @@ const LinkCard = ({
     id,
     url,
     shortKey,
-    createdAt,
+    clicks = 0,
     expiresAt,
     password,
     geoTargeting,
@@ -129,13 +122,9 @@ const LinkCard = ({
                     <a href={url} className="mr-1 flex-1 truncate">
                         {url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                     </a>
-                    <Calendar size={14} />
+                    <Eye size={14} />
                     <p>
-                        {new Date(createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                        })}
+                        {clicks} {clicks === 1 ? "click" : "clicks"}
                     </p>
                 </div>
             </div>

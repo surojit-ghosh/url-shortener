@@ -137,6 +137,11 @@ export async function GET(request: NextRequest) {
                 geoTargeting: true,
                 deviceTargeting: true,
                 metadata: true,
+                _count: {
+                    select: {
+                        clicks: true
+                    }
+                }
             }
         });
 

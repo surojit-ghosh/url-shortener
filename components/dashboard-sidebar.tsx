@@ -22,7 +22,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChartBar, Link as LinkIcon, LogOut, Settings } from "lucide-react";
+import { ChartBar, Link as LinkIcon, LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import Link from "next/link";
@@ -42,11 +42,6 @@ const items = [
         title: "Analytics",
         url: "/dashboard/analytics",
         icon: ChartBar,
-    },
-    {
-        title: "Settings",
-        url: "/dashboard/settings",
-        icon: Settings,
     },
 ];
 

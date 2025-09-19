@@ -74,10 +74,13 @@ export const linkSchema = z.object({
     ),
     createdAt: z.string().optional(),  // Optional for form input, required for DB
     updatedAt: z.string().optional(),  // Optional for form input, required for DB
+    _count: z.object({
+        clicks: z.number()
+    }).optional(), // Prisma count object for clicks
 });
 
 // For form input (excludes auto-generated fields)
-export const linkFormSchema = linkSchema.omit({ id: true, createdAt: true, updatedAt: true });
+export const linkFormSchema = linkSchema.omit({ id: true, createdAt: true, updatedAt: true, _count: true });
 
 export type ILink = z.infer<typeof linkSchema>;
 export type ILinkForm = z.infer<typeof linkFormSchema>;
